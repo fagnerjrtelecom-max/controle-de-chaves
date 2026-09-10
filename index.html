@@ -149,7 +149,10 @@ th{background:#eee}
       <div><label>Setor</label><input id="pSetor" placeholder="Ex.: Manutenção"></div>
     </div>
     <label>Observação</label><input id="pObs" placeholder="Opcional">
-    <div class="actions"><button class="primary" onclick="cadastrarPessoa()">Cadastrar colaborador</button></div>
+    <div class="actions">
+      <button class="primary" id="btnCadastrarPessoa" onclick="cadastrarPessoa()">Cadastrar colaborador</button>
+      <button class="secondary" id="btnCancelarEdicaoPessoa" onclick="cancelarEdicaoPessoa()" style="display:none">Cancelar edição</button>
+    </div>
   </div>
   <div class="panel">
     <input class="search" id="buscaPessoa" placeholder="Pesquisar colaborador..." oninput="renderPessoas()">
@@ -213,6 +216,7 @@ th{background:#eee}
 const KEY='controle_chaves_v2_jr';
 let db=JSON.parse(localStorage.getItem(KEY)||'null')||{chaves:[],pessoas:[],movimentos:[]};
 let chaveEditandoId = null;
+let pessoaEditandoId = null;
 
 /* Vetor SVG idêntico à imagem da chave amarela enviada */
 const svgKey = `<svg class="key-icon-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -308,24 +312,60 @@ function renderChaves(){
 
 function cadastrarPessoa(){
  let nome=pNome.value.trim();if(!nome)return alert('Informe o nome.');
- db.pessoas.push({id:id('P'),nome,setor:pSetor.value.trim(),obs:pObs.value.trim()});
- pNome.value=pSetor.value=pObs.value='';salvar();alert('Colaborador cadastrado.');
+
+ if(pessoaEditandoId){
+   let p=pessoa(pessoaEditandoId);
+   p.nome=nome;
+   p.setor=pSetor.value.trim();
+   p.obs=pObs.value.trim();
+   cancelarEdicaoPessoa();
+   salvar();
+   alert('Colaborador atualizado com sucesso.');
+ } else {
+   db.pessoas.push({id:id('P'),nome,setor:pSetor.value.trim(),obs:pObs.value.trim()});
+   pNome.value=pSetor.value=pObs.value='';salvar();alert('Colaborador cadastrado.');
+ }
 }
+
+function editarPessoa(pid){
+ let p=pessoa(pid);if(!p)return;
+ pessoaEditandoId=pid;
+ pNome.value=p.nome;
+ pSetor.value=p.setor||'';
+ pObs.value=p.obs||'';
+ btnCadastrarPessoa.textContent='Salvar alterações';
+ btnCancelarEdicaoPessoa.style.display='inline-block';
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function cancelarEdicaoPessoa(){
+ pessoaEditandoId=null;
+ pNome.value=pSetor.value=pObs.value='';
+ btnCadastrarPessoa.textContent='Cadastrar colaborador';
+ btnCancelarEdicaoPessoa.style.display='none';
+}
+
 function excluirPessoa(i){
  let p=db.pessoas[i];if(db.movimentos.some(m=>m.pessoaId===p.id&&!m.devolucao))return alert('Este colaborador está com uma chave em uso.');
- if(confirm('Excluir este colaborador?')){db.pessoas.splice(i,1);salvar()}
+ if(confirm('Excluir este colaborador?')){
+   if(pessoaEditandoId===p.id)cancelarEdicaoPessoa();
+   db.pessoas.splice(i,1);salvar();
+ }
 }
+
 function renderPessoas(){
  let q=(buscaPessoa.value||'').toLowerCase(),arr=db.pessoas.filter(p=>JSON.stringify(p).toLowerCase().includes(q));
  if(!arr.length){listaPessoas.innerHTML='<div class="empty">Nenhum colaborador cadastrado.</div>';return}
  listaPessoas.innerHTML=`<table><thead><tr><th>Nome</th><th>Setor</th><th>Observação</th><th>Ações</th></tr></thead><tbody>`+
- arr.map(p=>{let i=db.pessoas.indexOf(p);return `<tr><td>${esc(p.nome)}</td><td>${esc(p.setor)}</td><td>${esc(p.obs)}</td><td><button class="danger" onclick="excluirPessoa(${i})">Excluir</button></td></tr>`}).join('')+'</tbody></table>';
+ arr.map(p=>{let i=db.pessoas.indexOf(p);return `<tr><td>${esc(p.nome)}</td><td>${esc(p.setor)}</td><td>${esc(p.obs)}</td><td><button class="secondary" onclick="editarPessoa('${p.id}')">Editar</button> <button class="danger" onclick="excluirPessoa(${i})">Excluir</button></td></tr>`}).join('')+'</tbody></table>';
 }
+
 function preencherSelects(){
  retChave.innerHTML='<option value="">Selecione...</option>'+db.chaves.filter(c=>c.situacao==='Disponível'&&!movimentoAtivo(c)).map(c=>`<option value="${c.id}">${esc(c.codigo)} — ${esc(c.nome)}</option>`).join('');
  retPessoa.innerHTML='<option value="">Selecione...</option>'+db.pessoas.map(p=>`<option value="${p.id}">${esc(p.nome)}${p.setor?' — '+esc(p.setor):''}</option>`).join('');
  if(!retData.value)retData.value=hoje();if(!retHora.value)retHora.value=hora();
 }
+
 function registrarRetirada(){
  let c=chave(retChave.value),p=pessoa(retPessoa.value);
  if(!c||!p)return alert('Selecione a chave e o colaborador.');
@@ -333,6 +373,7 @@ function registrarRetirada(){
  db.movimentos.push({id:id('MOV'),chaveId:c.id,pessoaId:p.id,data:retData.value,hora:retHora.value,motivo:retMotivo.value.trim(),entregador:retEntregador.value.trim(),obs:retObs.value.trim(),devolucao:null});
  retMotivo.value=retEntregador.value=retObs.value='';salvar();alert('Retirada registrada.');
 }
+
 function devolver(mid){
  let m=db.movimentos.find(x=>x.id===mid);if(!m)return;
  let d=new Date();let data=d.toISOString().slice(0,10),hr=d.toTimeString().slice(0,5);
@@ -340,12 +381,14 @@ function devolver(mid){
  let obs=prompt('Observação da devolução (opcional):','')??'';
  m.devolucao={data,hora:hr,recebedor:rec,obs};salvar();alert('Devolução registrada.');
 }
+
 function renderDevolucoes(){
  let arr=db.movimentos.filter(m=>!m.devolucao);
  if(!arr.length){devolucoes.innerHTML='<div class="empty">Nenhuma chave em uso.</div>';return}
  devolucoes.innerHTML=`<table><thead><tr><th>Chave</th><th>Colaborador</th><th>Retirada</th><th>Finalidade</th><th>Ação</th></tr></thead><tbody>`+
  arr.map(m=>{let c=chave(m.chaveId),p=pessoa(m.pessoaId);return `<tr><td>${esc(c?.codigo)}<br>${esc(c?.nome)}</td><td>${esc(p?.nome)}</td><td>${dataBR(m.data)} ${esc(m.hora)}</td><td>${esc(m.motivo)}</td><td><button class="success" onclick="devolver('${m.id}')">Registrar devolução</button></td></tr>`}).join('')+'</tbody></table>';
 }
+
 function renderHistorico(){
  let q=(buscaHistorico.value||'').toLowerCase();
  let arr=db.movimentos.filter(m=>JSON.stringify({...m,chave:chave(m.chaveId),pessoa:pessoa(m.pessoaId)}).toLowerCase().includes(q)).slice().reverse();
@@ -353,6 +396,7 @@ function renderHistorico(){
  listaHistorico.innerHTML=`<table><thead><tr><th>Chave</th><th>Colaborador</th><th>Retirada</th><th>Devolução</th><th>Finalidade</th></tr></thead><tbody>`+
  arr.map(m=>{let c=chave(m.chaveId),p=pessoa(m.pessoaId),dv=m.devolucao;return `<tr><td>${esc(c?.codigo||'Chave Excluída')}<br>${esc(c?.nome||'')}</td><td>${esc(p?.nome||'Colaborador Excluído')}</td><td>${dataBR(m.data)} ${esc(m.hora)}<br><small>Entregue por: ${esc(m.entregador)}</small></td><td>${dv?dataBR(dv.data)+' '+esc(dv.hora)+'<br><small>Recebido por: '+esc(dv.recebedor)+'</small>':badge('Em uso')}</td><td>${esc(m.motivo)}<br><small>${esc(m.obs)}</small></td></tr>`}).join('')+'</tbody></table>';
 }
+
 function renderDashboard(){
  let disponiveis=db.chaves.filter(c=>c.situacao==='Disponível'&&!movimentoAtivo(c));
  let uso=db.chaves.filter(c=>!!movimentoAtivo(c));
@@ -390,6 +434,7 @@ function renderDashboard(){
  }).join('')
  : '<div class="no-keys">Nenhuma chave está em uso.</div>';
 }
+
 function detalharChave(cid){
  let c=chave(cid),movs=db.movimentos.filter(m=>m.chaveId===cid).slice().reverse();
  modalTitulo.textContent=`${c.codigo} — ${c.nome}`;
@@ -397,6 +442,7 @@ function detalharChave(cid){
  (movs.length?`<table><tr><th>Retirada</th><th>Colaborador</th><th>Devolução</th></tr>${movs.map(m=>{let p=pessoa(m.pessoaId);return `<tr><td>${dataBR(m.data)} ${esc(m.hora)}</td><td>${esc(p?.nome||'Excluído')}</td><td>${m.devolucao?dataBR(m.devolucao.data)+' '+esc(m.devolucao.hora):'Em uso'}</td></tr>`}).join('')}</table>`:'<p>Sem histórico.</p>');
  modal.classList.add('show');
 }
+
 function fecharModal(){modal.classList.remove('show')}
 function exportar(){
  let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');

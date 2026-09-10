@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de chaves nova sede JR Telecom</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#222;position:relative;min-height:100vh;overflow-x:hidden}
+
+/* Header Laranja */
+header{background:#ff6d00;color:#000;padding:16px 24px;font-weight:bold;display:flex;align-items:center;min-height:65px}
+header h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-0.5px}
+
+/* Navegação com Pílulas */
+nav{background:#fff;padding:14px 24px;display:flex;gap:10px;flex-wrap:wrap}
+button{border:0;border-radius:20px;padding:8px 18px;cursor:pointer;font-weight:bold;font-size:13px;transition:.2s}
+.navbtn{background:#e2e5e9;color:#000}
+.navbtn.active{background:#0029ff;color:#fff}
+
+/* Layout Principal com recuo para não cobrir com o mascote */
+main{max-width:1300px;margin:10px 0 0 24px;padding-right:260px}
+.page{display:none}.page.active{display:block}
+
+/* Dashboard Visual */
+.key-sections{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.key-section{background:#f4f6f8;border-radius:6px;padding:16px}
+.key-section-header{display:flex;align-items:center;gap:8px;margin-bottom:16px;background:#fff;padding:10px 14px;border-radius:8px}
+.key-section-header h2{margin:0;font-size:15px;display:flex;align-items:center;gap:8px;color:#333;font-weight:bold}
+.status-dot{width:14px;height:14px;border-radius:50%;display:inline-block}
+.status-dot.green{background:#00c853}
+.status-dot.red{background:#d50000}
+.section-count{font-size:11px;background:#eef2f5;padding:2px 8px;border-radius:12px;margin-left:auto;color:#555;font-weight:bold}
+
+.key-cards{display:grid;grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));gap:12px}
+.key-card{border:1px solid #e1e6eb;border-radius:12px;padding:12px 8px;text-align:center;background:#fff;box-shadow: 0 1px 3px rgba(0,0,0,0.05)}
+.key-icon-svg{width:50px;height:50px;margin:0 auto 6px;display:block}
+.key-code{font-size:13px;font-weight:bold;color:#000}
+.key-name{font-size:11px;font-weight:bold;color:#444;margin-top:2px}
+.key-sector{font-size:10px;color:#777;margin:3px 0 8px}
+.key-status{display:inline-block;padding:4px 10px;border-radius:12px;font-size:9px;font-weight:bold}
+.key-status.ok{background:#dff5e7;color:#146c36}
+.key-status.busy{background:#ffe0df;color:#a41414}
+.key-holder{margin-top:8px;padding-top:8px;border-top:1px solid #eee;text-align:left;font-size:10px;line-height:1.4;color:#444}
+
+.no-keys{padding:20px 10px;text-align:center;color:#888;font-size:11px}
+
+/* Mascote JR Telecom Encostado no topo */
+.mascote-img{position:absolute;right:30px;top:0;height:430px;z-index:99;pointer-events:none}
+
+/* Estilos de formulários e tabelas */
+.panel{background:#f4f6f8;border-radius:8px;padding:18px;margin-bottom:18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+label{display:block;font-size:12px;font-weight:bold;margin:8px 0 4px}
+input,select,textarea{width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;font-size:13px}
+textarea{resize:vertical;min-height:60px}
+.primary{background:#0029ff;color:#fff;border-radius:6px}
+.secondary{background:#e2e5e9;color:#000;border-radius:6px}
+.danger{background:#d50000;color:#fff;border-radius:6px}
+.success{background:#00c853;color:#fff;border-radius:6px}
+.actions{display:flex;gap:8px;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:12px;background:#fff}
+th,td{text-align:left;padding:8px;border-bottom:1px solid #ddd}
+th{background:#eee}
+.badge{display:inline-block;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:bold}
+.available{background:#dff5e7;color:#146c36}.used{background:#ffe5c2;color:#8a4b00}
+.lost{background:#ffdede;color:#a41414}.maintenance{background:#e6e8eb;color:#4b5563}
+.search{margin-bottom:10px}
+.empty{padding:20px;text-align:center;color:#777}
+.modal{display:none;position:fixed;inset:0;background:#0008;align-items:center;justify-content:center;padding:20px;z-index:100}
+.modal.show{display:flex}.modalbox{background:#fff;border-radius:10px;padding:20px;width:min(500px,100%)}
+.close{float:right;background:#eee}
+
+@media(max-width:960px){
+  main{padding-right:0;margin:10px 16px}
+  .mascote-img{display:none}
+  .key-sections{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Controle de chaves nova sede JR Telecom</h1>
+</header>
+
+<nav>
+  <button class="navbtn active" data-page="dashboard">Dashbord</button>
+  <button class="navbtn" data-page="chaves">Chaves</button>
+  <button class="navbtn" data-page="pessoas">Colaboradres</button>
+  <button class="navbtn" data-page="retirada">Retirada/ Devolução</button>
+  <button class="navbtn" data-page="historico">Histórico</button>
+  <button class="navbtn" data-page="backup">Backup</button>
+</nav>
+
+<!-- Imagem do Mascote Integrada -->
+<img src="ChatGPT Image 10 de set. de 2026, 11_19_47.png" alt="Mascote JR Telecom" class="mascote-img">
+
+<main>
+<section id="dashboard" class="page active">
+  <div class="key-sections">
+    <div class="key-section">
+      <div class="key-section-header">
+        <h2><span class="status-dot green"></span> Chaves disponíveis</h2>
+        <span class="section-count" id="countDisponiveis">0</span>
+      </div>
+      <div class="key-cards" id="cardsDisponiveis"></div>
+    </div>
+
+    <div class="key-section">
+      <div class="key-section-header">
+        <h2><span class="status-dot red"></span> Chaves em uso</h2>
+        <span class="section-count" id="countUso">0</span>
+      </div>
+      <div class="key-cards" id="cardsUso"></div>
+    </div>
+  </div>
+</section>
+
+<section id="chaves" class="page">
+  <div class="panel">
+    <h3>Cadastro de chaves</h3>
+    <div class="grid">
+      <div><label>Código da chave</label><input id="chCodigo" placeholder="Ex.: CH-Setor"></div>
+      <div><label>Nome / identificação</label><input id="chNome" placeholder="Ex.: Sala"></div>
+      <div><label>Local / setor</label><input id="chLocal" placeholder="Ex.: Matriz"></div>
+      <div>
+        <label>Situação</label>
+        <select id="chSituacao"><option value="Disponível">Disponível</option><option value="Manutenção">Manutenção</option><option value="Perdida">Perdida</option></select>
+      </div>
+    </div>
+    <label>Observação</label><textarea id="chObs" placeholder="Informações adicionais"></textarea>
+    <div class="actions"><button class="primary" onclick="cadastrarChave()">Cadastrar chave</button></div>
+  </div>
+  <div class="panel">
+    <input class="search" id="buscaChave" placeholder="Pesquisar chave..." oninput="renderChaves()">
+    <div id="listaChaves"></div>
+  </div>
+</section>
+
+<section id="pessoas" class="page">
+  <div class="panel">
+    <h3>Cadastro de colaboradores</h3>
+    <div class="grid">
+      <div><label>Nome</label><input id="pNome" placeholder="Nome completo"></div>
+      <div><label>Setor</label><input id="pSetor" placeholder="Ex.: Manutenção"></div>
+    </div>
+    <label>Observação</label><input id="pObs" placeholder="Opcional">
+    <div class="actions"><button class="primary" onclick="cadastrarPessoa()">Cadastrar colaborador</button></div>
+  </div>
+  <div class="panel">
+    <input class="search" id="buscaPessoa" placeholder="Pesquisar colaborador..." oninput="renderPessoas()">
+    <div id="listaPessoas"></div>
+  </div>
+</section>
+
+<section id="retirada" class="page">
+  <div class="panel">
+    <h3>Registrar retirada</h3>
+    <div class="grid">
+      <div><label>Chave</label><select id="retChave"></select></div>
+      <div><label>Colaborador</label><select id="retPessoa"></select></div>
+      <div><label>Data da retirada</label><input type="date" id="retData"></div>
+      <div><label>Hora da retirada</label><input type="time" id="retHora"></div>
+    </div>
+    <label>Finalidade / motivo</label><input id="retMotivo" placeholder="Ex.: Trabalho no almoxarifado">
+    <label>Responsável pela entrega</label><input id="retEntregador" placeholder="Nome de quem entregou a chave">
+    <label>Observação</label><textarea id="retObs"></textarea>
+    <div class="actions"><button class="primary" onclick="registrarRetirada()">Registrar retirada</button></div>
+  </div>
+
+  <div class="panel">
+    <h3>Chaves em uso — devolução</h3>
+    <div id="devolucoes"></div>
+  </div>
+</section>
+
+<section id="historico" class="page">
+  <div class="panel">
+    <h3>Histórico de movimentações</h3>
+    <input class="search" id="buscaHistorico" placeholder="Pesquisar..." oninput="renderHistorico()">
+    <div id="listaHistorico"></div>
+  </div>
+</section>
+
+<section id="backup" class="page">
+  <div class="panel">
+    <h3>Backup dos dados</h3>
+    <p>Os dados ficam salvos neste navegador. Faça um backup regularmente.</p>
+    <div class="actions">
+      <button class="primary" onclick="exportar()">Exportar backup</button>
+      <label class="secondary" style="display:inline-block;padding:8px 18px;border-radius:20px;cursor:pointer;font-weight:bold;font-size:13px">
+        Importar backup <input type="file" id="arquivoImportar" accept=".json" onchange="importar(event)" style="display:none">
+      </label>
+      <button class="danger" onclick="limparTudo()">Apagar todos os dados</button>
+    </div>
+  </div>
+</section>
+</main>
+
+<div class="modal" id="modal" onclick="if(event.target===this)fecharModal()">
+ <div class="modalbox">
+  <button class="close" onclick="fecharModal()">Fechar</button>
+  <h3 id="modalTitulo">Detalhes</h3>
+  <div id="modalConteudo"></div>
+ </div>
+</div>
+
+<script>
+const KEY='controle_chaves_v2_jr';
+let db=JSON.parse(localStorage.getItem(KEY)||'null')||{chaves:[],pessoas:[],movimentos:[]};
+
+/* Vetor SVG idêntico à imagem da chave amarela enviada */
+const svgKey = `<svg class="key-icon-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="340" cy="172" r="142" fill="#FFA726"/>
+  <circle cx="340" cy="172" r="105" fill="#FFB74D"/>
+  <circle cx="372" cy="140" r="32" fill="#FFFFFF"/>
+  <path d="M228 250 L38 440 L38 500 L88 500 L128 460 L128 430 L168 430 L168 390 L208 390 L248 350 L248 310 L278 280 Z" fill="#FFA726"/>
+  <path d="M200 280 L38 440 L38 500 L88 500 L118 470 L118 430 L158 430 L158 390 L198 390 Z" fill="#FB8C00"/>
+  <path d="M228 250 L188 290 L78 400 L38 440 L38 500 L63 500 L93 470 L128 470 L128 430 L168 430 L168 390 L208 390 L233 365 Z" fill="#F57C00"/>
+</svg>`;
+
+function salvar(){localStorage.setItem(KEY,JSON.stringify(db));renderTudo()}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function hoje(){return new Date().toISOString().slice(0,10)}
+function hora(){return new Date().toTimeString().slice(0,5)}
+function id(prefix){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6)}
+function dataBR(d){if(!d)return '-';let [a,m,dia]=d.split('-');return `${dia}/${m}/${a}`}
+function chave(id){return db.chaves.find(x=>x.id===id)}
+function pessoa(id){return db.pessoas.find(x=>x.id===id)}
+function movimentoAtivo(c){return db.movimentos.find(x=>x.chaveId===c.id&&!x.devolucao)}
+function badge(s){
+ let cl=s==='Disponível'?'available':s==='Em uso'?'used':s==='Perdida'?'lost':'maintenance';
+ return `<span class="badge ${cl}">${esc(s)}</span>`;
+}
+
+document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('.navbtn').forEach(x=>x.classList.remove('active'));
+ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+ b.classList.add('active');document.getElementById(b.dataset.page).classList.add('active');renderTudo();
+});
+
+function cadastrarChave(){
+ let codigo=chCodigo.value.trim(),nome=chNome.value.trim();
+ if(!codigo||!nome)return alert('Informe o código e o nome da chave.');
+ if(db.chaves.some(x=>x.codigo.toLowerCase()===codigo.toLowerCase()))return alert('Esse código já está cadastrado.');
+ db.chaves.push({id:id('CH'),codigo,nome,local:chLocal.value.trim(),situacao:chSituacao.value,obs:chObs.value.trim()});
+ chCodigo.value=chNome.value=chLocal.value=chObs.value='';chSituacao.value='Disponível';salvar();alert('Chave cadastrada.');
+}
+function excluirChave(i){
+ let c=db.chaves[i];if(movimentoAtivo(c))return alert('Não é possível excluir uma chave que está em uso.');
+ if(confirm('Excluir esta chave?')){db.chaves.splice(i,1);salvar()}
+}
+function renderChaves(){
+ let q=(buscaChave.value||'').toLowerCase();
+ let arr=db.chaves.filter(c=>JSON.stringify(c).toLowerCase().includes(q));
+ if(!arr.length){listaChaves.innerHTML='<div class="empty">Nenhuma chave cadastrada.</div>';return}
+ listaChaves.innerHTML=`<table><thead><tr><th>Código</th><th>Identificação</th><th>Local</th><th>Situação</th><th>Ações</th></tr></thead><tbody>`+
+ arr.map(c=>{let real=db.chaves.indexOf(c);let mov=movimentoAtivo(c);let sit=mov?'Em uso':c.situacao;
+ return `<tr><td>${esc(c.codigo)}</td><td>${esc(c.nome)}<br><small>${esc(c.obs)}</small></td><td>${esc(c.local)}</td><td>${badge(sit)}</td><td><button class="secondary" onclick="detalharChave('${c.id}')">Detalhes</button> <button class="danger" onclick="excluirChave(${real})">Excluir</button></td></tr>`}).join('')+'</tbody></table>';
+}
+function cadastrarPessoa(){
+ let nome=pNome.value.trim();if(!nome)return alert('Informe o nome.');
+ db.pessoas.push({id:id('P'),nome,setor:pSetor.value.trim(),obs:pObs.value.trim()});
+ pNome.value=pSetor.value=pObs.value='';salvar();alert('Colaborador cadastrado.');
+}
+function excluirPessoa(i){
+ let p=db.pessoas[i];if(db.movimentos.some(m=>m.pessoaId===p.id&&!m.devolucao))return alert('Este colaborador está com uma chave em uso.');
+ if(confirm('Excluir este colaborador?')){db.pessoas.splice(i,1);salvar()}
+}
+function renderPessoas(){
+ let q=(buscaPessoa.value||'').toLowerCase(),arr=db.pessoas.filter(p=>JSON.stringify(p).toLowerCase().includes(q));
+ if(!arr.length){listaPessoas.innerHTML='<div class="empty">Nenhum colaborador cadastrado.</div>';return}
+ listaPessoas.innerHTML=`<table><thead><tr><th>Nome</th><th>Setor</th><th>Observação</th><th>Ações</th></tr></thead><tbody>`+
+ arr.map(p=>{let i=db.pessoas.indexOf(p);return `<tr><td>${esc(p.nome)}</td><td>${esc(p.setor)}</td><td>${esc(p.obs)}</td><td><button class="danger" onclick="excluirPessoa(${i})">Excluir</button></td></tr>`}).join('')+'</tbody></table>';
+}
+function preencherSelects(){
+ retChave.innerHTML='<option value="">Selecione...</option>'+db.chaves.filter(c=>c.situacao==='Disponível'&&!movimentoAtivo(c)).map(c=>`<option value="${c.id}">${esc(c.codigo)} — ${esc(c.nome)}</option>`).join('');
+ retPessoa.innerHTML='<option value="">Selecione...</option>'+db.pessoas.map(p=>`<option value="${p.id}">${esc(p.nome)}${p.setor?' — '+esc(p.setor):''}</option>`).join('');
+ if(!retData.value)retData.value=hoje();if(!retHora.value)retHora.value=hora();
+}
+function registrarRetirada(){
+ let c=chave(retChave.value),p=pessoa(retPessoa.value);
+ if(!c||!p)return alert('Selecione a chave e o colaborador.');
+ if(movimentoAtivo(c))return alert('Essa chave já está em uso.');
+ db.movimentos.push({id:id('MOV'),chaveId:c.id,pessoaId:p.id,data:retData.value,hora:retHora.value,motivo:retMotivo.value.trim(),entregador:retEntregador.value.trim(),obs:retObs.value.trim(),devolucao:null});
+ retMotivo.value=retEntregador.value=retObs.value='';salvar();alert('Retirada registrada.');
+}
+function devolver(mid){
+ let m=db.movimentos.find(x=>x.id===mid);if(!m)return;
+ let d=new Date();let data=d.toISOString().slice(0,10),hr=d.toTimeString().slice(0,5);
+ let rec=prompt('Nome de quem recebeu a devolução:', '');if(rec===null)return;
+ let obs=prompt('Observação da devolução (opcional):','')??'';
+ m.devolucao={data,hora:hr,recebedor:rec,obs};salvar();alert('Devolução registrada.');
+}
+function renderDevolucoes(){
+ let arr=db.movimentos.filter(m=>!m.devolucao);
+ if(!arr.length){devolucoes.innerHTML='<div class="empty">Nenhuma chave em uso.</div>';return}
+ devolucoes.innerHTML=`<table><thead><tr><th>Chave</th><th>Colaborador</th><th>Retirada</th><th>Finalidade</th><th>Ação</th></tr></thead><tbody>`+
+ arr.map(m=>{let c=chave(m.chaveId),p=pessoa(m.pessoaId);return `<tr><td>${esc(c?.codigo)}<br>${esc(c?.nome)}</td><td>${esc(p?.nome)}</td><td>${dataBR(m.data)} ${esc(m.hora)}</td><td>${esc(m.motivo)}</td><td><button class="success" onclick="devolver('${m.id}')">Registrar devolução</button></td></tr>`}).join('')+'</tbody></table>';
+}
+function renderHistorico(){
+ let q=(buscaHistorico.value||'').toLowerCase();
+ let arr=db.movimentos.filter(m=>JSON.stringify({...m,chave:chave(m.chaveId),pessoa:pessoa(m.pessoaId)}).toLowerCase().includes(q)).slice().reverse();
+ if(!arr.length){listaHistorico.innerHTML='<div class="empty">Nenhuma movimentação registrada.</div>';return}
+ listaHistorico.innerHTML=`<table><thead><tr><th>Chave</th><th>Colaborador</th><th>Retirada</th><th>Devolução</th><th>Finalidade</th></tr></thead><tbody>`+
+ arr.map(m=>{let c=chave(m.chaveId),p=pessoa(m.pessoaId),dv=m.devolucao;return `<tr><td>${esc(c?.codigo||'Chave Excluída')}<br>${esc(c?.nome||'')}</td><td>${esc(p?.nome||'Colaborador Excluído')}</td><td>${dataBR(m.data)} ${esc(m.hora)}<br><small>Entregue por: ${esc(m.entregador)}</small></td><td>${dv?dataBR(dv.data)+' '+esc(dv.hora)+'<br><small>Recebido por: '+esc(dv.recebedor)+'</small>':badge('Em uso')}</td><td>${esc(m.motivo)}<br><small>${esc(m.obs)}</small></td></tr>`}).join('')+'</tbody></table>';
+}
+function renderDashboard(){
+ let disponiveis=db.chaves.filter(c=>c.situacao==='Disponível'&&!movimentoAtivo(c));
+ let uso=db.chaves.filter(c=>!!movimentoAtivo(c));
+
+ countDisponiveis.textContent=disponiveis.length;
+ countUso.textContent=uso.length;
+
+ cardsDisponiveis.innerHTML=disponiveis.length
+ ?disponiveis.map(c=>`
+   <div class="key-card">
+     ${svgKey}
+     <div class="key-code">${esc(c.codigo)}</div>
+     <div class="key-name">${esc(c.nome)}</div>
+     <div class="key-sector">Setor/Local: ${esc(c.local)||'-'}</div>
+     <span class="key-status ok">DISPONÍVEL</span>
+   </div>`).join('')
+ : '<div class="no-keys">Nenhuma chave disponível no momento.</div>';
+
+ cardsUso.innerHTML=uso.length
+ ?uso.map(c=>{
+   let m=movimentoAtivo(c),p=pessoa(m?.pessoaId);
+   return `
+   <div class="key-card">
+     ${svgKey}
+     <div class="key-code">${esc(c.codigo)}</div>
+     <div class="key-name">${esc(c.nome)}</div>
+     <div class="key-sector">Setor/Local: ${esc(c.local)||'-'}</div>
+     <span class="key-status busy">EM USO</span>
+     <div class="key-holder">
+       <div><strong>👤 Pegou:</strong> ${esc(p?.nome)||'Não informado'}</div>
+       <div><strong>📅 Data:</strong> ${dataBR(m?.data)}</div>
+       <div><strong>🕐 Horário:</strong> ${esc(m?.hora)||'-'}</div>
+     </div>
+   </div>`
+ }).join('')
+ : '<div class="no-keys">Nenhuma chave está em uso.</div>';
+}
+function detalharChave(cid){
+ let c=chave(cid),movs=db.movimentos.filter(m=>m.chaveId===cid).slice().reverse();
+ modalTitulo.textContent=`${c.codigo} — ${c.nome}`;
+ modalConteudo.innerHTML=`<p><b>Local:</b> ${esc(c.local)||'-'}</p><p><b>Situação:</b> ${badge(movimentoAtivo(c)?'Em uso':c.situacao)}</p><p><b>Observação:</b> ${esc(c.obs)||'-'}</p><hr><h4>Histórico da chave</h4>`+
+ (movs.length?`<table><tr><th>Retirada</th><th>Colaborador</th><th>Devolução</th></tr>${movs.map(m=>{let p=pessoa(m.pessoaId);return `<tr><td>${dataBR(m.data)} ${esc(m.hora)}</td><td>${esc(p?.nome||'Excluído')}</td><td>${m.devolucao?dataBR(m.devolucao.data)+' '+esc(m.devolucao.hora):'Em uso'}</td></tr>`}).join('')}</table>`:'<p>Sem histórico.</p>');
+ modal.classList.add('show');
+}
+function fecharModal(){modal.classList.remove('show')}
+function exportar(){
+ let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);a.download='backup_controle_chaves_'+hoje()+'.json';a.click();URL.revokeObjectURL(a.href);
+}
+function importar(e){
+ let f=e.target.files[0];if(!f)return;let r=new FileReader();
+ r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.chaves||!x.pessoas||!x.movimentos)throw 0;if(confirm('Importar este backup e substituir os dados atuais?')){db=x;salvar();alert('Backup importado com sucesso.')}}catch{alert('Arquivo de backup inválido.')}};
+ r.readAsText(f);e.target.value='';
+}
+function limparTudo(){
+ if(confirm('ATENÇÃO: todos os dados serão apagados deste navegador. Confirma?')){localStorage.removeItem(KEY);db={chaves:[],pessoas:[],movimentos:[]};renderTudo()}
+}
+function renderTudo(){renderDashboard();renderChaves();renderPessoas();preencherSelects();renderDevolucoes();renderHistorico()}
+renderTudo();
+</script>
+</body>
+</html>

@@ -192,7 +192,7 @@ th{background:#eee}
 <section id="backup" class="page">
   <div class="panel">
     <h3>Backup dos dados</h3>
-    <p>Os dados ficam salvos neste navegador. Faça um backup regularmente.</p>
+    <p>Os dados ficam salvos em tempo real na nuvem do Firebase.</p>
     <div class="actions">
       <button class="primary" onclick="exportar()">Exportar backup</button>
       <label class="secondary" style="display:inline-block;padding:8px 18px;border-radius:20px;cursor:pointer;font-weight:bold;font-size:13px">
@@ -212,13 +212,27 @@ th{background:#eee}
  </div>
 </div>
 
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
 <script>
-const KEY='controle_chaves_v2_jr';
-let db=JSON.parse(localStorage.getItem(KEY)||'null')||{chaves:[],pessoas:[],movimentos:[]};
+const firebaseConfig = {
+  apiKey: "AIzaSyC24cBsTKfs57YYsE_gGra7mlE5qnrhezg",
+  authDomain: "chaves-jrtelecom.firebaseapp.com",
+  projectId: "chaves-jrtelecom",
+  storageBucket: "chaves-jrtelecom.firebasestorage.app",
+  messagingSenderId: "541047638923",
+  appId: "1:541047638923:web:e647064760f1da0b957d8e"
+};
+
+firebase.initializeApp(firebaseConfig);
+const dbFirestore = firebase.firestore();
+
+let db = { chaves: [], pessoas: [], movimentos: [] };
 let chaveEditandoId = null;
 let pessoaEditandoId = null;
 
-/* Vetor SVG idêntico à imagem da chave amarela enviada */
 const svgKey = `<svg class="key-icon-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <circle cx="340" cy="172" r="142" fill="#FFA726"/>
   <circle cx="340" cy="172" r="105" fill="#FFB74D"/>
@@ -228,7 +242,20 @@ const svgKey = `<svg class="key-icon-svg" viewBox="0 0 512 512" xmlns="http://ww
   <path d="M228 250 L188 290 L78 400 L38 440 L38 500 L63 500 L93 470 L128 470 L128 430 L168 430 L168 390 L208 390 L233 365 Z" fill="#F57C00"/>
 </svg>`;
 
-function salvar(){localStorage.setItem(KEY,JSON.stringify(db));renderTudo()}
+// Sincronização em Tempo Real com o Firebase
+dbFirestore.collection('controle').doc('dados_v2').onSnapshot((doc) => {
+  if (doc.exists) {
+    db = doc.data() || { chaves: [], pessoas: [], movimentos: [] };
+    renderTudo();
+  } else {
+    salvar();
+  }
+});
+
+function salvar(){
+  dbFirestore.collection('controle').doc('dados_v2').set(db);
+}
+
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function hoje(){return new Date().toISOString().slice(0,10)}
 function hora(){return new Date().toTimeString().slice(0,5)}
@@ -454,10 +481,9 @@ function importar(e){
  r.readAsText(f);e.target.value='';
 }
 function limparTudo(){
- if(confirm('ATENÇÃO: todos os dados serão apagados deste navegador. Confirma?')){localStorage.removeItem(KEY);db={chaves:[],pessoas:[],movimentos:[]};renderTudo()}
+ if(confirm('ATENÇÃO: todos os dados serão apagados do banco de dados na nuvem. Confirma?')){db={chaves:[],pessoas:[],movimentos:[]};salvar()}
 }
 function renderTudo(){renderDashboard();renderChaves();renderPessoas();preencherSelects();renderDevolucoes();renderHistorico()}
-renderTudo();
 </script>
 </body>
 </html>

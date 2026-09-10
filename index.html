@@ -130,7 +130,10 @@ th{background:#eee}
       </div>
     </div>
     <label>Observação</label><textarea id="chObs" placeholder="Informações adicionais"></textarea>
-    <div class="actions"><button class="primary" onclick="cadastrarChave()">Cadastrar chave</button></div>
+    <div class="actions">
+      <button class="primary" id="btnCadastrarChave" onclick="cadastrarChave()">Cadastrar chave</button>
+      <button class="secondary" id="btnCancelarEdicao" onclick="cancelarEdicaoChave()" style="display:none">Cancelar edição</button>
+    </div>
   </div>
   <div class="panel">
     <input class="search" id="buscaChave" placeholder="Pesquisar chave..." oninput="renderChaves()">
@@ -209,6 +212,7 @@ th{background:#eee}
 <script>
 const KEY='controle_chaves_v2_jr';
 let db=JSON.parse(localStorage.getItem(KEY)||'null')||{chaves:[],pessoas:[],movimentos:[]};
+let chaveEditandoId = null;
 
 /* Vetor SVG idêntico à imagem da chave amarela enviada */
 const svgKey = `<svg class="key-icon-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -243,22 +247,65 @@ document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>{
 function cadastrarChave(){
  let codigo=chCodigo.value.trim(),nome=chNome.value.trim();
  if(!codigo||!nome)return alert('Informe o código e o nome da chave.');
- if(db.chaves.some(x=>x.codigo.toLowerCase()===codigo.toLowerCase()))return alert('Esse código já está cadastrado.');
- db.chaves.push({id:id('CH'),codigo,nome,local:chLocal.value.trim(),situacao:chSituacao.value,obs:chObs.value.trim()});
- chCodigo.value=chNome.value=chLocal.value=chObs.value='';chSituacao.value='Disponível';salvar();alert('Chave cadastrada.');
+
+ if(chaveEditandoId){
+   let c=chave(chaveEditandoId);
+   if(db.chaves.some(x=>x.id!==chaveEditandoId&&x.codigo.toLowerCase()===codigo.toLowerCase())){
+     return alert('Esse código já pertence a outra chave.');
+   }
+   c.codigo=codigo;
+   c.nome=nome;
+   c.local=chLocal.value.trim();
+   c.situacao=chSituacao.value;
+   c.obs=chObs.value.trim();
+   cancelarEdicaoChave();
+   salvar();
+   alert('Chave atualizada com sucesso.');
+ } else {
+   if(db.chaves.some(x=>x.codigo.toLowerCase()===codigo.toLowerCase()))return alert('Esse código já está cadastrado.');
+   db.chaves.push({id:id('CH'),codigo,nome,local:chLocal.value.trim(),situacao:chSituacao.value,obs:chObs.value.trim()});
+   chCodigo.value=chNome.value=chLocal.value=chObs.value='';chSituacao.value='Disponível';salvar();alert('Chave cadastrada.');
+ }
 }
+
+function editarChave(cid){
+ let c=chave(cid);if(!c)return;
+ chaveEditandoId=cid;
+ chCodigo.value=c.codigo;
+ chNome.value=c.nome;
+ chLocal.value=c.local||'';
+ chSituacao.value=c.situacao||'Disponível';
+ chObs.value=c.obs||'';
+ btnCadastrarChave.textContent='Salvar alterações';
+ btnCancelarEdicao.style.display='inline-block';
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function cancelarEdicaoChave(){
+ chaveEditandoId=null;
+ chCodigo.value=chNome.value=chLocal.value=chObs.value='';
+ chSituacao.value='Disponível';
+ btnCadastrarChave.textContent='Cadastrar chave';
+ btnCancelarEdicao.style.display='none';
+}
+
 function excluirChave(i){
  let c=db.chaves[i];if(movimentoAtivo(c))return alert('Não é possível excluir uma chave que está em uso.');
- if(confirm('Excluir esta chave?')){db.chaves.splice(i,1);salvar()}
+ if(confirm('Excluir esta chave?')){
+   if(chaveEditandoId===c.id)cancelarEdicaoChave();
+   db.chaves.splice(i,1);salvar();
+ }
 }
+
 function renderChaves(){
  let q=(buscaChave.value||'').toLowerCase();
  let arr=db.chaves.filter(c=>JSON.stringify(c).toLowerCase().includes(q));
  if(!arr.length){listaChaves.innerHTML='<div class="empty">Nenhuma chave cadastrada.</div>';return}
  listaChaves.innerHTML=`<table><thead><tr><th>Código</th><th>Identificação</th><th>Local</th><th>Situação</th><th>Ações</th></tr></thead><tbody>`+
  arr.map(c=>{let real=db.chaves.indexOf(c);let mov=movimentoAtivo(c);let sit=mov?'Em uso':c.situacao;
- return `<tr><td>${esc(c.codigo)}</td><td>${esc(c.nome)}<br><small>${esc(c.obs)}</small></td><td>${esc(c.local)}</td><td>${badge(sit)}</td><td><button class="secondary" onclick="detalharChave('${c.id}')">Detalhes</button> <button class="danger" onclick="excluirChave(${real})">Excluir</button></td></tr>`}).join('')+'</tbody></table>';
+ return `<tr><td>${esc(c.codigo)}</td><td>${esc(c.nome)}<br><small>${esc(c.obs)}</small></td><td>${esc(c.local)}</td><td>${badge(sit)}</td><td><button class="secondary" onclick="detalharChave('${c.id}')">Detalhes</button> <button class="secondary" onclick="editarChave('${c.id}')">Editar</button> <button class="danger" onclick="excluirChave(${real})">Excluir</button></td></tr>`}).join('')+'</tbody></table>';
 }
+
 function cadastrarPessoa(){
  let nome=pNome.value.trim();if(!nome)return alert('Informe o nome.');
  db.pessoas.push({id:id('P'),nome,setor:pSetor.value.trim(),obs:pObs.value.trim()});

@@ -502,10 +502,10 @@ function renderDashboard(){
   let disponiveisCount = 0;
   let usoCount = 0;
 
-  // Gerar os 40 ganchos na ordem A1...A5, B1...B5 até H5
-  colunas.forEach(col => {
-    linhas.forEach(lin => {
-      let pos = col + lin; // Ex: A1, A2...
+  // Gerar os 40 ganchos na ordem por linha: A1..H1, A2..H2, A3..H3, A4..H4, A5..H5
+  linhas.forEach(lin => {
+    colunas.forEach(col => {
+      let pos = col + lin; // Ex: A1, B1, C1... H1 -> A2, B2...
       slotsMapeados.push(pos);
     });
   });

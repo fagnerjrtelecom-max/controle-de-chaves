@@ -93,8 +93,8 @@ th{background:#eee}
   <button class="navbtn" data-page="backup">Backup</button>
 </nav>
 
-<!-- Imagem do Mascote Integrada (AL TERE O NOME DO SEU GIF OU IMAGEM AQUI) -->
-<img src="ChatGPT Image 10 de set. de 2026, 11_19_47.png" alt="Mascote JR Telecom" class="mascote-img">
+<!-- Imagem do Mascote (Renomeie o arquivo na pasta do GitHub para mascote.png ou mascote.gif) -->
+<img src="mascote.png" alt="Mascote JR Telecom" class="mascote-img">
 
 <main>
 <section id="dashboard" class="page active">
@@ -246,10 +246,12 @@ const svgKey = `<svg class="key-icon-svg" viewBox="0 0 512 512" xmlns="http://ww
 dbFirestore.collection('controle').doc('dados_v2').onSnapshot((doc) => {
   if (doc.exists) {
     db = doc.data() || { chaves: [], pessoas: [], movimentos: [] };
-    renderTudo();
   } else {
     salvar();
   }
+  renderTudo();
+}, (error) => {
+  console.error("Erro no Firebase:", error);
 });
 
 function salvar(){
@@ -421,7 +423,7 @@ function renderHistorico(){
  let arr=db.movimentos.filter(m=>JSON.stringify({...m,chave:chave(m.chaveId),pessoa:pessoa(m.pessoaId)}).toLowerCase().includes(q)).slice().reverse();
  if(!arr.length){listaHistorico.innerHTML='<div class="empty">Nenhuma movimentação registrada.</div>';return}
  listaHistorico.innerHTML=`<table><thead><tr><th>Chave</th><th>Colaborador</th><th>Retirada</th><th>Devolução</th><th>Finalidade</th></tr></thead><tbody>`+
- arr.map(m=>{let c=chave(m.chaveId),p=pessoa(m.pessoaId),dv=m.devolucao;return `<tr><td>${esc(c?.codigo||'Chave Excluída')}<br>${esc(c?.nome||'')}</td><td>${esc(p?.nome||'Colaborador Excluído')}</td><td>${dataBR(m.data)} ${esc(m.hora)}<br><small>Entregue por: ${esc(m.entregador)}</small></td><td>${dv?dataBR(dv.data)+' '+esc(dv.hora)+'<br><small>Recebido por: '+esc(dv.recebedor)+'</small>':badge('Em uso')}</td><td>${esc(m.motivo)}<br><small>${esc(m.obs)}</small></td></tr>`}).join('')+'</tbody></table>';
+ arr.map(m=>{let c=chave(m.chaveId),p=pessoa(m.pessoaId),dv=m.devolucao;return `<tr><td>${esc(c?.codigo||'Chave Excluída')}<br>${esc(c?.nome||'')}</td><td>${esc(p?.nome||'Colaborador Excluído')}</td><td>${dataBR(m.data)} ${esc(m.hora)}<br><small>Entregue por: ${esc(m.entregador)}</small></td><td>${dv?dataBR(dv.data)+' '+esc(dv.hora)+'<br><small>Recebido por: '+esc(dv.recebedor)+'</small>':badge('Em uso')}</td><td>${esc(m.motivo)}<br><small>${esc(m.obs)}</small></td></tr>`}).join('')+'</tbody>mtable>';
 }
 
 function renderDashboard(){
@@ -484,6 +486,8 @@ function limparTudo(){
  if(confirm('ATENÇÃO: todos os dados serão apagados do banco de dados na nuvem. Confirma?')){db={chaves:[],pessoas:[],movimentos:[]};salvar()}
 }
 function renderTudo(){renderDashboard();renderChaves();renderPessoas();preencherSelects();renderDevolucoes();renderHistorico()}
+
+renderTudo();
 </script>
 </body>
 </html>

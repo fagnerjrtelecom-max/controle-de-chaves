@@ -18,7 +18,7 @@ button{border:0;border-radius:20px;padding:8px 18px;cursor:pointer;font-weight:b
 .navbtn{background:#e2e5e9;color:#000}
 .navbtn.active{background:#0029ff;color:#fff}
 
-/* Layout Principal */
+/* Layout Principal com recuo para não cobrir com o mascote */
 main{max-width:1300px;margin:10px 0 0 24px;padding-right:260px}
 .page{display:none}.page.active{display:block}
 
@@ -93,8 +93,8 @@ th{background:#eee}
   <button class="navbtn" data-page="backup">Backup</button>
 </nav>
 
-<!-- Tag da imagem apontando para mascote.png -->
-<img src="mascote.png" alt="Mascote JR Telecom" class="mascote-img">
+<!-- Imagem do Mascote Integrada -->
+<img src="mascote.gif" alt="Mascote JR Telecom" class="mascote-img">
 
 <main>
 <section id="dashboard" class="page active">
@@ -246,12 +246,10 @@ const svgKey = `<svg class="key-icon-svg" viewBox="0 0 512 512" xmlns="http://ww
 dbFirestore.collection('controle').doc('dados_v2').onSnapshot((doc) => {
   if (doc.exists) {
     db = doc.data() || { chaves: [], pessoas: [], movimentos: [] };
+    renderTudo();
   } else {
     salvar();
   }
-  renderTudo();
-}, (error) => {
-  console.error("Erro no Firebase:", error);
 });
 
 function salvar(){
@@ -486,8 +484,6 @@ function limparTudo(){
  if(confirm('ATENÇÃO: todos os dados serão apagados do banco de dados na nuvem. Confirma?')){db={chaves:[],pessoas:[],movimentos:[]};salvar()}
 }
 function renderTudo(){renderDashboard();renderChaves();renderPessoas();preencherSelects();renderDevolucoes();renderHistorico()}
-
-renderTudo();
 </script>
 </body>
 </html>

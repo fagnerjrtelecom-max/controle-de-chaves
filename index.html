@@ -93,7 +93,6 @@ th{background:#eee}
   <button class="navbtn" data-page="backup">Backup</button>
 </nav>
 
-<!-- Imagem do Mascote Integrada -->
 <img src="mascote.gif" alt="Mascote JR Telecom" class="mascote-img">
 
 <main>
@@ -212,7 +211,6 @@ th{background:#eee}
  </div>
 </div>
 
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
@@ -246,10 +244,12 @@ const svgKey = `<svg class="key-icon-svg" viewBox="0 0 512 512" xmlns="http://ww
 dbFirestore.collection('controle').doc('dados_v2').onSnapshot((doc) => {
   if (doc.exists) {
     db = doc.data() || { chaves: [], pessoas: [], movimentos: [] };
-    renderTudo();
   } else {
     salvar();
   }
+  renderTudo();
+}, (error) => {
+  console.error("Erro no Firebase:", error);
 });
 
 function salvar(){
@@ -484,6 +484,8 @@ function limparTudo(){
  if(confirm('ATENÇÃO: todos os dados serão apagados do banco de dados na nuvem. Confirma?')){db={chaves:[],pessoas:[],movimentos:[]};salvar()}
 }
 function renderTudo(){renderDashboard();renderChaves();renderPessoas();preencherSelects();renderDevolucoes();renderHistorico()}
+
+renderTudo();
 </script>
 </body>
 </html>

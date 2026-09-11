@@ -8,15 +8,27 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#222;position:relative;min-height:100vh;overflow-x:hidden}
 
+/* Tela de Login Centralizada */
+#loginScreen{position:fixed;inset:0;background:#f4f6f8;display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-box{background:#fff;padding:32px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.1);width:min(380px,90%);text-align:center}
+.login-box h2{margin:0 0 8px;color:#ff6d00;font-size:22px}
+.login-box p{font-size:13px;color:#666;margin-bottom:20px}
+.login-box input{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:14px;margin-bottom:14px;text-align:center}
+.login-box button{width:100%;padding:10px;background:#0029ff;color:#fff;border:0;border-radius:6px;font-weight:bold;cursor:pointer;font-size:14px}
+
 /* Header Laranja */
-header{background:#ff6d00;color:#000;padding:16px 24px;font-weight:bold;display:flex;align-items:center;min-height:65px}
+header{background:#ff6d00;color:#000;padding:16px 24px;font-weight:bold;display:flex;align-items:center;justify-content:space-between;min-height:65px}
 header h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-0.5px}
+.btn-logout{background:#000;color:#fff;border-radius:12px;padding:6px 14px;font-size:11px}
 
 /* Navegação com Pílulas */
 nav{background:#fff;padding:14px 24px;display:flex;gap:10px;flex-wrap:wrap}
 button{border:0;border-radius:20px;padding:8px 18px;cursor:pointer;font-weight:bold;font-size:13px;transition:.2s}
 .navbtn{background:#e2e5e9;color:#000}
 .navbtn.active{background:#0029ff;color:#fff}
+
+/* Ocultar conteúdo até que o login seja feito */
+.app-container{display:none}
 
 /* Layout Principal com recuo para não cobrir com o mascote */
 main{max-width:1300px;margin:10px 0 0 24px;padding-right:260px}
@@ -80,128 +92,143 @@ th{background:#eee}
 </head>
 <body>
 
-<header>
-  <h1>Controle de chaves nova sede JR Telecom</h1>
-</header>
+<!-- Tela de Login -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h2>Acesso Restrito</h2>
+    <p>Digite a senha para acessar o controle de chaves</p>
+    <input type="password" id="passInput" placeholder="Sua senha" onkeypress="if(event.key==='Enter')validarSenha()">
+    <button onclick="validarSenha()">Entrar no Sistema</button>
+  </div>
+</div>
 
-<nav>
-  <button class="navbtn active" data-page="dashboard">Dashbord</button>
-  <button class="navbtn" data-page="chaves">Chaves</button>
-  <button class="navbtn" data-page="pessoas">Colaboradres</button>
-  <button class="navbtn" data-page="retirada">Retirada/ Devolução</button>
-  <button class="navbtn" data-page="historico">Histórico</button>
-  <button class="navbtn" data-page="backup">Backup</button>
-</nav>
+<!-- Conteúdo Principal do App (Inicia Oculto) -->
+<div class="app-container" id="appContainer">
+  <header>
+    <h1>Controle de chaves nova sede JR Telecom</h1>
+    <button class="btn-logout" onclick="logout()">Sair 🔒</button>
+  </header>
 
-<img src="mascote.gif" alt="Mascote JR Telecom" class="mascote-img">
+  <nav>
+    <button class="navbtn active" data-page="dashboard">Dashbord</button>
+    <button class="navbtn" data-page="chaves">Chaves</button>
+    <button class="navbtn" data-page="pessoas">Colaboradres</button>
+    <button class="navbtn" data-page="retirada">Retirada/ Devolução</button>
+    <button class="navbtn" data-page="historico">Histórico</button>
+    <button class="navbtn" data-page="backup">Backup</button>
+  </nav>
 
-<main>
-<section id="dashboard" class="page active">
-  <div class="key-sections">
-    <div class="key-section">
-      <div class="key-section-header">
-        <h2><span class="status-dot green"></span> Chaves disponíveis</h2>
-        <span class="section-count" id="countDisponiveis">0</span>
+  <!-- Mascote em GIF -->
+  <img src="mascote.gif" alt="Mascote JR Telecom" class="mascote-img">
+
+  <main>
+  <section id="dashboard" class="page active">
+    <div class="key-sections">
+      <div class="key-section">
+        <div class="key-section-header">
+          <h2><span class="status-dot green"></span> Chaves disponíveis</h2>
+          <span class="section-count" id="countDisponiveis">0</span>
+        </div>
+        <div class="key-cards" id="cardsDisponiveis"></div>
       </div>
-      <div class="key-cards" id="cardsDisponiveis"></div>
-    </div>
 
-    <div class="key-section">
-      <div class="key-section-header">
-        <h2><span class="status-dot red"></span> Chaves em uso</h2>
-        <span class="section-count" id="countUso">0</span>
-      </div>
-      <div class="key-cards" id="cardsUso"></div>
-    </div>
-  </div>
-</section>
-
-<section id="chaves" class="page">
-  <div class="panel">
-    <h3>Cadastro de chaves</h3>
-    <div class="grid">
-      <div><label>Código da chave</label><input id="chCodigo" placeholder="Ex.: CH-Setor"></div>
-      <div><label>Nome / identificação</label><input id="chNome" placeholder="Ex.: Sala"></div>
-      <div><label>Local / setor</label><input id="chLocal" placeholder="Ex.: Matriz"></div>
-      <div>
-        <label>Situação</label>
-        <select id="chSituacao"><option value="Disponível">Disponível</option><option value="Manutenção">Manutenção</option><option value="Perdida">Perdida</option></select>
+      <div class="key-section">
+        <div class="key-section-header">
+          <h2><span class="status-dot red"></span> Chaves em uso</h2>
+          <span class="section-count" id="countUso">0</span>
+        </div>
+        <div class="key-cards" id="cardsUso"></div>
       </div>
     </div>
-    <label>Observação</label><textarea id="chObs" placeholder="Informações adicionais"></textarea>
-    <div class="actions">
-      <button class="primary" id="btnCadastrarChave" onclick="cadastrarChave()">Cadastrar chave</button>
-      <button class="secondary" id="btnCancelarEdicao" onclick="cancelarEdicaoChave()" style="display:none">Cancelar edição</button>
-    </div>
-  </div>
-  <div class="panel">
-    <input class="search" id="buscaChave" placeholder="Pesquisar chave..." oninput="renderChaves()">
-    <div id="listaChaves"></div>
-  </div>
-</section>
+  </section>
 
-<section id="pessoas" class="page">
-  <div class="panel">
-    <h3>Cadastro de colaboradores</h3>
-    <div class="grid">
-      <div><label>Nome</label><input id="pNome" placeholder="Nome completo"></div>
-      <div><label>Setor</label><input id="pSetor" placeholder="Ex.: Manutenção"></div>
+  <section id="chaves" class="page">
+    <div class="panel">
+      <h3>Cadastro de chaves</h3>
+      <div class="grid">
+        <div><label>Código da chave</label><input id="chCodigo" placeholder="Ex.: CH-Setor"></div>
+        <div><label>Nome / identificação</label><input id="chNome" placeholder="Ex.: Sala"></div>
+        <div><label>Local / setor</label><input id="chLocal" placeholder="Ex.: Matriz"></div>
+        <div>
+          <label>Situação</label>
+          <select id="chSituacao"><option value="Disponível">Disponível</option><option value="Manutenção">Manutenção</option><option value="Perdida">Perdida</option></select>
+        </div>
+      </div>
+      <label>Observação</label><textarea id="chObs" placeholder="Informações adicionais"></textarea>
+      <div class="actions">
+        <button class="primary" id="btnCadastrarChave" onclick="cadastrarChave()">Cadastrar chave</button>
+        <button class="secondary" id="btnCancelarEdicao" onclick="cancelarEdicaoChave()" style="display:none">Cancelar edição</button>
+      </div>
     </div>
-    <label>Observação</label><input id="pObs" placeholder="Opcional">
-    <div class="actions">
-      <button class="primary" id="btnCadastrarPessoa" onclick="cadastrarPessoa()">Cadastrar colaborador</button>
-      <button class="secondary" id="btnCancelarEdicaoPessoa" onclick="cancelarEdicaoPessoa()" style="display:none">Cancelar edição</button>
+    <div class="panel">
+      <input class="search" id="buscaChave" placeholder="Pesquisar chave..." oninput="renderChaves()">
+      <div id="listaChaves"></div>
     </div>
-  </div>
-  <div class="panel">
-    <input class="search" id="buscaPessoa" placeholder="Pesquisar colaborador..." oninput="renderPessoas()">
-    <div id="listaPessoas"></div>
-  </div>
-</section>
+  </section>
 
-<section id="retirada" class="page">
-  <div class="panel">
-    <h3>Registrar retirada</h3>
-    <div class="grid">
-      <div><label>Chave</label><select id="retChave"></select></div>
-      <div><label>Colaborador</label><select id="retPessoa"></select></div>
-      <div><label>Data da retirada</label><input type="date" id="retData"></div>
-      <div><label>Hora da retirada</label><input type="time" id="retHora"></div>
+  <section id="pessoas" class="page">
+    <div class="panel">
+      <h3>Cadastro de colaboradores</h3>
+      <div class="grid">
+        <div><label>Nome</label><input id="pNome" placeholder="Nome completo"></div>
+        <div><label>Setor</label><input id="pSetor" placeholder="Ex.: Manutenção"></div>
+      </div>
+      <label>Observação</label><input id="pObs" placeholder="Opcional">
+      <div class="actions">
+        <button class="primary" id="btnCadastrarPessoa" onclick="cadastrarPessoa()">Cadastrar colaborador</button>
+        <button class="secondary" id="btnCancelarEdicaoPessoa" onclick="cancelarEdicaoPessoa()" style="display:none">Cancelar edição</button>
+      </div>
     </div>
-    <label>Finalidade / motivo</label><input id="retMotivo" placeholder="Ex.: Trabalho no almoxarifado">
-    <label>Responsável pela entrega</label><input id="retEntregador" placeholder="Nome de quem entregou a chave">
-    <label>Observação</label><textarea id="retObs"></textarea>
-    <div class="actions"><button class="primary" onclick="registrarRetirada()">Registrar retirada</button></div>
-  </div>
-
-  <div class="panel">
-    <h3>Chaves em uso — devolução</h3>
-    <div id="devolucoes"></div>
-  </div>
-</section>
-
-<section id="historico" class="page">
-  <div class="panel">
-    <h3>Histórico de movimentações</h3>
-    <input class="search" id="buscaHistorico" placeholder="Pesquisar..." oninput="renderHistorico()">
-    <div id="listaHistorico"></div>
-  </div>
-</section>
-
-<section id="backup" class="page">
-  <div class="panel">
-    <h3>Backup dos dados</h3>
-    <p>Os dados ficam salvos em tempo real na nuvem do Firebase.</p>
-    <div class="actions">
-      <button class="primary" onclick="exportar()">Exportar backup</button>
-      <label class="secondary" style="display:inline-block;padding:8px 18px;border-radius:20px;cursor:pointer;font-weight:bold;font-size:13px">
-        Importar backup <input type="file" id="arquivoImportar" accept=".json" onchange="importar(event)" style="display:none">
-      </label>
-      <button class="danger" onclick="limparTudo()">Apagar todos os dados</button>
+    <div class="panel">
+      <input class="search" id="buscaPessoa" placeholder="Pesquisar colaborador..." oninput="renderPessoas()">
+      <div id="listaPessoas"></div>
     </div>
-  </div>
-</section>
-</main>
+  </section>
+
+  <section id="retirada" class="page">
+    <div class="panel">
+      <h3>Registrar retirada</h3>
+      <div class="grid">
+        <div><label>Chave</label><select id="retChave"></select></div>
+        <div><label>Colaborador</label><select id="retPessoa"></select></div>
+        <div><label>Data da retirada</label><input type="date" id="retData"></div>
+        <div><label>Hora da retirada</label><input type="time" id="retHora"></div>
+      </div>
+      <label>Finalidade / motivo</label><input id="retMotivo" placeholder="Ex.: Trabalho no almoxarifado">
+      <label>Responsável pela entrega</label><input id="retEntregador" placeholder="Nome de quem entregou a chave">
+      <label>Observação</label><textarea id="retObs"></textarea>
+      <div class="actions"><button class="primary" onclick="registrarRetirada()">Registrar retirada</button></div>
+    </div>
+
+    <div class="panel">
+      <h3>Chaves em uso — devolução</h3>
+      <div id="devolucoes"></div>
+    </div>
+  </section>
+
+  <section id="historico" class="page">
+    <div class="panel">
+      <h3>Histórico de movimentações</h3>
+      <input class="search" id="buscaHistorico" placeholder="Pesquisar..." oninput="renderHistorico()">
+      <div id="listaHistorico"></div>
+    </div>
+  </section>
+
+  <section id="backup" class="page">
+    <div class="panel">
+      <h3>Backup dos dados</h3>
+      <p>Os dados ficam salvos em tempo real na nuvem do Firebase.</p>
+      <div class="actions">
+        <button class="primary" onclick="exportar()">Exportar backup</button>
+        <label class="secondary" style="display:inline-block;padding:8px 18px;border-radius:20px;cursor:pointer;font-weight:bold;font-size:13px">
+          Importar backup <input type="file" id="arquivoImportar" accept=".json" onchange="importar(event)" style="display:none">
+        </label>
+        <button class="danger" onclick="limparTudo()">Apagar todos os dados</button>
+      </div>
+    </div>
+  </section>
+  </main>
+</div>
 
 <div class="modal" id="modal" onclick="if(event.target===this)fecharModal()">
  <div class="modalbox">
@@ -211,10 +238,41 @@ th{background:#eee}
  </div>
 </div>
 
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <script>
+// CONTROLE DE SENHA E AUTENTICAÇÃO
+const SENHA_CORRETA = "jr294861"; // ALTERE SUA SENHA AQUI SE DESEJAR
+
+function validarSenha(){
+  let digitada = passInput.value;
+  if(digitada === SENHA_CORRETA){
+    localStorage.setItem('jr_auth', 'true');
+    liberarAcesso();
+  } else {
+    alert("Senha incorreta!");
+    passInput.value = '';
+  }
+}
+
+function liberarAcesso(){
+  loginScreen.style.display = 'none';
+  appContainer.style.display = 'block';
+  renderTudo();
+}
+
+function logout(){
+  localStorage.removeItem('jr_auth');
+  location.reload();
+}
+
+// Verifica se já está logado
+if(localStorage.getItem('jr_auth') === 'true'){
+  liberarAcesso();
+}
+
 const firebaseConfig = {
   apiKey: "AIzaSyC24cBsTKfs57YYsE_gGra7mlE5qnrhezg",
   authDomain: "chaves-jrtelecom.firebaseapp.com",
@@ -247,7 +305,7 @@ dbFirestore.collection('controle').doc('dados_v2').onSnapshot((doc) => {
   } else {
     salvar();
   }
-  renderTudo();
+  if(localStorage.getItem('jr_auth') === 'true') renderTudo();
 }, (error) => {
   console.error("Erro no Firebase:", error);
 });
@@ -484,8 +542,6 @@ function limparTudo(){
  if(confirm('ATENÇÃO: todos os dados serão apagados do banco de dados na nuvem. Confirma?')){db={chaves:[],pessoas:[],movimentos:[]};salvar()}
 }
 function renderTudo(){renderDashboard();renderChaves();renderPessoas();preencherSelects();renderDevolucoes();renderHistorico()}
-
-renderTudo();
 </script>
 </body>
 </html>

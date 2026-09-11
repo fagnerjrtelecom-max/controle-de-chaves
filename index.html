@@ -58,15 +58,17 @@ main{max-width:1400px;margin:10px auto;padding:0 24px}
 .hook-slot.empty .empty-text{font-size:10px;font-weight:bold;color:#bbb;margin-top:14px}
 
 .hook-slot.available{border:2px solid #00c853;background:#f0fbf4}
+.hook-slot.partial{border:2px solid #ff9100;background:#fff9e6}
 .hook-slot.busy{border:2px solid #d50000;background:#fff5f5}
 
 .slot-code{font-size:12px;font-weight:800;color:#000;margin-top:16px}
 .slot-name{font-size:11px;font-weight:bold;color:#444;margin:2px 0;line-height:1.2;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .slot-badge{display:inline-block;padding:2px 6px;border-radius:8px;font-size:8px;font-weight:bold;margin-top:4px}
 .slot-badge.ok{background:#00c853;color:#fff}
+.slot-badge.partial{background:#ff9100;color:#fff}
 .slot-badge.busy{background:#d50000;color:#fff}
 
-.slot-holder{font-size:9px;color:#555;text-align:left;border-top:1px solid #ffcdd2;padding-top:4px;margin-top:4px;line-height:1.2}
+.slot-holder{font-size:9px;color:#555;text-align:left;border-top:1px solid #ddd;padding-top:4px;margin-top:4px;line-height:1.2}
 
 /* Estilos de formulários e tabelas */
 .panel{background:#f4f6f8;border-radius:8px;padding:18px;margin-bottom:18px}
@@ -142,8 +144,8 @@ th{background:#eee}
     <div class="board-header">
       <h2>📌 Quadro de Chaves Físico (40 Posições)</h2>
       <div class="board-stats">
-        <span class="stat-pill green">🟢 Disponíveis: <strong id="countDisponiveis">0</strong></span>
-        <span class="stat-pill red">🔴 Em Uso: <strong id="countUso">0</strong></span>
+        <span class="stat-pill green">🟢 Totalmente Disponíveis: <strong id="countDisponiveis">0</strong></span>
+        <span class="stat-pill red">🔴 Com Retirada / Em Uso: <strong id="countUso">0</strong></span>
       </div>
     </div>
     
@@ -164,8 +166,9 @@ th{background:#eee}
       <div><label>Código da chave</label><input id="chCodigo" placeholder="Ex.: CH-Setor"></div>
       <div><label>Nome / identificação</label><input id="chNome" placeholder="Ex.: Sala de Reunião"></div>
       <div><label>Local / Posição no Quadro</label><input id="chLocal" placeholder="Ex.: A1, B3, H5..."></div>
+      <div><label>Qtd. Total de Cópias no Molho</label><input type="number" id="chCopias" value="1" min="1"></div>
       <div>
-        <label>Situação</label>
+        <label>Situação do Molho</label>
         <select id="chSituacao"><option value="Disponível">Disponível</option><option value="Manutenção">Manutenção</option><option value="Perdida">Perdida</option></select>
       </div>
     </div>
@@ -206,11 +209,12 @@ th{background:#eee}
     <div class="grid">
       <div><label>Chave</label><select id="retChave"></select></div>
       <div><label>Colaborador</label><select id="retPessoa"></select></div>
+      <div><label>Qtd. de Cópias a retirar</label><input type="number" id="retQtd" value="1" min="1"></div>
       <div><label>Data da retirada</label><input type="date" id="retData"></div>
       <div><label>Hora da retirada</label><input type="time" id="retHora"></div>
+      <div><label>Responsável pela entrega</label><input id="retEntregador" placeholder="Nome de quem entregou"></div>
     </div>
     <label>Finalidade / motivo</label><input id="retMotivo" placeholder="Ex.: Trabalho no almoxarifado">
-    <label>Responsável pela entrega</label><input id="retEntregador" placeholder="Nome de quem entregou a chave">
     <label>Observação</label><textarea id="retObs"></textarea>
     <div class="actions"><button class="primary" onclick="registrarRetirada()">Registrar retirada</button></div>
   </div>
@@ -332,7 +336,19 @@ function id(prefix){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().
 function dataBR(d){if(!d)return '-';let [a,m,dia]=d.split('-');return `${dia}/${m}/${a}`}
 function chave(id){return db.chaves.find(x=>x.id===id)}
 function pessoa(id){return db.pessoas.find(x=>x.id===id)}
-function movimentoAtivo(c){return db.movimentos.find(x=>x.chaveId===c.id&&!x.devolucao)}
+
+// Retorna todas as retiradas ativas de uma chave
+function movimentosAtivosChave(cId){
+  return db.movimentos.filter(x=>x.chaveId===cId && !x.devolucao);
+}
+
+// Calcula quantas cópias estão disponíveis no molho
+function copiasDisponiveis(c){
+  let total = parseInt(c.totalCopias || 1);
+  let retiradas = movimentosAtivosChave(c.id).reduce((acc, m) => acc + parseInt(m.qtd || 1), 0);
+  return Math.max(0, total - retiradas);
+}
+
 function badge(s){
  let cl=s==='Disponível'?'available':s==='Em uso'?'used':s==='Perdida'?'lost':'maintenance';
  return `<span class="badge ${cl}">${esc(s)}</span>`;
@@ -345,7 +361,7 @@ document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>{
 });
 
 function cadastrarChave(){
- let codigo=chCodigo.value.trim(),nome=chNome.value.trim();
+ let codigo=chCodigo.value.trim(),nome=chNome.value.trim(), totalCopias = parseInt(chCopias.value || 1);
  if(!codigo||!nome)return alert('Informe o código e o nome da chave.');
 
  if(chaveEditandoId){
@@ -356,6 +372,7 @@ function cadastrarChave(){
    c.codigo=codigo;
    c.nome=nome;
    c.local=chLocal.value.trim();
+   c.totalCopias=totalCopias;
    c.situacao=chSituacao.value;
    c.obs=chObs.value.trim();
    cancelarEdicaoChave();
@@ -363,8 +380,8 @@ function cadastrarChave(){
    alert('Chave atualizada com sucesso.');
  } else {
    if(db.chaves.some(x=>x.codigo.toLowerCase()===codigo.toLowerCase()))return alert('Esse código já está cadastrado.');
-   db.chaves.push({id:id('CH'),codigo,nome,local:chLocal.value.trim(),situacao:chSituacao.value,obs:chObs.value.trim()});
-   chCodigo.value=chNome.value=chLocal.value=chObs.value='';chSituacao.value='Disponível';salvar();alert('Chave cadastrada.');
+   db.chaves.push({id:id('CH'),codigo,nome,local:chLocal.value.trim(),totalCopias,situacao:chSituacao.value,obs:chObs.value.trim()});
+   chCodigo.value=chNome.value=chLocal.value=chObs.value='';chCopias.value='1';chSituacao.value='Disponível';salvar();alert('Chave cadastrada.');
  }
 }
 
@@ -374,6 +391,7 @@ function editarChave(cid){
  chCodigo.value=c.codigo;
  chNome.value=c.nome;
  chLocal.value=c.local||'';
+ chCopias.value=c.totalCopias||1;
  chSituacao.value=c.situacao||'Disponível';
  chObs.value=c.obs||'';
  btnCadastrarChave.textContent='Salvar alterações';
@@ -384,13 +402,15 @@ function editarChave(cid){
 function cancelarEdicaoChave(){
  chaveEditandoId=null;
  chCodigo.value=chNome.value=chLocal.value=chObs.value='';
+ chCopias.value='1';
  chSituacao.value='Disponível';
  btnCadastrarChave.textContent='Cadastrar chave';
  btnCancelarEdicao.style.display='none';
 }
 
 function excluirChave(i){
- let c=db.chaves[i];if(movimentoAtivo(c))return alert('Não é possível excluir uma chave que está em uso.');
+ let c=db.chaves[i];
+ if(movimentosAtivosChave(c.id).length > 0) return alert('Não é possível excluir uma chave que possui cópias em uso.');
  if(confirm('Excluir esta chave?')){
    if(chaveEditandoId===c.id)cancelarEdicaoChave();
    db.chaves.splice(i,1);salvar();
@@ -401,9 +421,14 @@ function renderChaves(){
  let q=(buscaChave.value||'').toLowerCase();
  let arr=db.chaves.filter(c=>JSON.stringify(c).toLowerCase().includes(q));
  if(!arr.length){listaChaves.innerHTML='<div class="empty">Nenhuma chave cadastrada.</div>';return}
- listaChaves.innerHTML=`<table><thead><tr><th>Código</th><th>Identificação</th><th>Local</th><th>Situação</th><th>Ações</th></tr></thead><tbody>`+
- arr.map(c=>{let real=db.chaves.indexOf(c);let mov=movimentoAtivo(c);let sit=mov?'Em uso':c.situacao;
- return `<tr><td>${esc(c.codigo)}</td><td>${esc(c.nome)}<br><small>${esc(c.obs)}</small></td><td>${esc(c.local)}</td><td>${badge(sit)}</td><td><button class="secondary" onclick="detalharChave('${c.id}')">Detalhes</button> <button class="secondary" onclick="editarChave('${c.id}')">Editar</button> <button class="danger" onclick="excluirChave(${real})">Excluir</button></td></tr>`}).join('')+'</tbody></table>';
+ listaChaves.innerHTML=`<table><thead><tr><th>Código</th><th>Identificação</th><th>Local</th><th>Cópias (Disp/Total)</th><th>Situação</th><th>Ações</th></tr></thead><tbody>`+
+ arr.map(c=>{
+   let real=db.chaves.indexOf(c);
+   let disp=copiasDisponiveis(c);
+   let total=c.totalCopias||1;
+   let sit=disp === 0 ? 'Em uso' : c.situacao;
+   return `<tr><td>${esc(c.codigo)}</td><td>${esc(c.nome)}<br><small>${esc(c.obs)}</small></td><td>${esc(c.local)}</td><td><b>${disp} / ${total}</b> cópias</td><td>${badge(sit)}</td><td><button class="secondary" onclick="detalharChave('${c.id}')">Detalhes</button> <button class="secondary" onclick="editarChave('${c.id}')">Editar</button> <button class="danger" onclick="excluirChave(${real})">Excluir</button></td></tr>`
+ }).join('')+'</tbody></table>';
 }
 
 function cadastrarPessoa(){
@@ -442,7 +467,8 @@ function cancelarEdicaoPessoa(){
 }
 
 function excluirPessoa(i){
- let p=db.pessoas[i];if(db.movimentos.some(m=>m.pessoaId===p.id&&!m.devolucao))return alert('Este colaborador está com uma chave em uso.');
+ let p=db.pessoas[i];
+ if(db.movimentos.some(m=>m.pessoaId===p.id&&!m.devolucao)) return alert('Este colaborador está com uma chave/cópia em uso.');
  if(confirm('Excluir este colaborador?')){
    if(pessoaEditandoId===p.id)cancelarEdicaoPessoa();
    db.pessoas.splice(i,1);salvar();
@@ -457,17 +483,20 @@ function renderPessoas(){
 }
 
 function preencherSelects(){
- retChave.innerHTML='<option value="">Selecione...</option>'+db.chaves.filter(c=>c.situacao==='Disponível'&&!movimentoAtivo(c)).map(c=>`<option value="${c.id}">${esc(c.codigo)} — ${esc(c.nome)}</option>`).join('');
+ retChave.innerHTML='<option value="">Selecione...</option>'+db.chaves.filter(c=>c.situacao==='Disponível' && copiasDisponiveis(c) > 0).map(c=>`<option value="${c.id}">${esc(c.codigo)} — ${esc(c.nome)} (Disponível: ${copiasDisponiveis(c)})</option>`).join('');
  retPessoa.innerHTML='<option value="">Selecione...</option>'+db.pessoas.map(p=>`<option value="${p.id}">${esc(p.nome)}${p.setor?' — '+esc(p.setor):''}</option>`).join('');
  if(!retData.value)retData.value=hoje();if(!retHora.value)retHora.value=hora();
 }
 
 function registrarRetirada(){
- let c=chave(retChave.value),p=pessoa(retPessoa.value);
+ let c=chave(retChave.value),p=pessoa(retPessoa.value), qtd = parseInt(retQtd.value || 1);
  if(!c||!p)return alert('Selecione a chave e o colaborador.');
- if(movimentoAtivo(c))return alert('Essa chave já está em uso.');
- db.movimentos.push({id:id('MOV'),chaveId:c.id,pessoaId:p.id,data:retData.value,hora:retHora.value,motivo:retMotivo.value.trim(),entregador:retEntregador.value.trim(),obs:retObs.value.trim(),devolucao:null});
- retMotivo.value=retEntregador.value=retObs.value='';salvar();alert('Retirada registrada.');
+ 
+ let disp = copiasDisponiveis(c);
+ if(disp < qtd) return alert(`Ops! Essa chave possui apenas ${disp} cópia(s) disponível(is) no momento.`);
+
+ db.movimentos.push({id:id('MOV'),chaveId:c.id,pessoaId:p.id,qtd,data:retData.value,hora:retHora.value,motivo:retMotivo.value.trim(),entregador:retEntregador.value.trim(),obs:retObs.value.trim(),devolucao:null});
+ retMotivo.value=retEntregador.value=retObs.value=''; retQtd.value='1'; salvar();alert('Retirada registrada.');
 }
 
 function devolver(mid){
@@ -480,17 +509,17 @@ function devolver(mid){
 
 function renderDevolucoes(){
  let arr=db.movimentos.filter(m=>!m.devolucao);
- if(!arr.length){devolucoes.innerHTML='<div class="empty">Nenhuma chave em uso.</div>';return}
- devolucoes.innerHTML=`<table><thead><tr><th>Chave</th><th>Colaborador</th><th>Retirada</th><th>Finalidade</th><th>Ação</th></tr></thead><tbody>`+
- arr.map(m=>{let c=chave(m.chaveId),p=pessoa(m.pessoaId);return `<tr><td>${esc(c?.codigo)}<br>${esc(c?.nome)}</td><td>${esc(p?.nome)}</td><td>${dataBR(m.data)} ${esc(m.hora)}</td><td>${esc(m.motivo)}</td><td><button class="success" onclick="devolver('${m.id}')">Registrar devolução</button></td></tr>`}).join('')+'</tbody></table>';
+ if(!arr.length){devolucoes.innerHTML='<div class="empty">Nenhuma chave/cópia em uso.</div>';return}
+ devolucoes.innerHTML=`<table><thead><tr><th>Chave</th><th>Colaborador</th><th>Qtd. Cópias</th><th>Retirada</th><th>Finalidade</th><th>Ação</th></tr></thead><tbody>`+
+ arr.map(m=>{let c=chave(m.chaveId),p=pessoa(m.pessoaId);return `<tr><td>${esc(c?.codigo)}<br>${esc(c?.nome)}</td><td>${esc(p?.nome)}</td><td><b>${m.qtd || 1} cópia(s)</b></td><td>${dataBR(m.data)} ${esc(m.hora)}</td><td>${esc(m.motivo)}</td><td><button class="success" onclick="devolver('${m.id}')">Registrar devolução</button></td></tr>`}).join('')+'</tbody></table>';
 }
 
 function renderHistorico(){
  let q=(buscaHistorico.value||'').toLowerCase();
  let arr=db.movimentos.filter(m=>JSON.stringify({...m,chave:chave(m.chaveId),pessoa:pessoa(m.pessoaId)}).toLowerCase().includes(q)).slice().reverse();
  if(!arr.length){listaHistorico.innerHTML='<div class="empty">Nenhuma movimentação registrada.</div>';return}
- listaHistorico.innerHTML=`<table><thead><tr><th>Chave</th><th>Colaborador</th><th>Retirada</th><th>Devolução</th><th>Finalidade</th></tr></thead><tbody>`+
- arr.map(m=>{let c=chave(m.chaveId),p=pessoa(m.pessoaId),dv=m.devolucao;return `<tr><td>${esc(c?.codigo||'Chave Excluída')}<br>${esc(c?.nome||'')}</td><td>${esc(p?.nome||'Colaborador Excluído')}</td><td>${dataBR(m.data)} ${esc(m.hora)}<br><small>Entregue por: ${esc(m.entregador)}</small></td><td>${dv?dataBR(dv.data)+' '+esc(dv.hora)+'<br><small>Recebido por: '+esc(dv.recebedor)+'</small>':badge('Em uso')}</td><td>${esc(m.motivo)}<br><small>${esc(m.obs)}</small></td></tr>`}).join('')+'</tbody></table>';
+ listaHistorico.innerHTML=`<table><thead><tr><th>Chave</th><th>Colaborador</th><th>Qtd</th><th>Retirada</th><th>Devolução</th><th>Finalidade</th></tr></thead><tbody>`+
+ arr.map(m=>{let c=chave(m.chaveId),p=pessoa(m.pessoaId),dv=m.devolucao;return `<tr><td>${esc(c?.codigo||'Chave Excluída')}<br>${esc(c?.nome||'')}</td><td>${esc(p?.nome||'Colaborador Excluído')}</td><td>${m.qtd||1} cóp.</td><td>${dataBR(m.data)} ${esc(m.hora)}<br><small>Entregue por: ${esc(m.entregador)}</small></td><td>${dv?dataBR(dv.data)+' '+esc(dv.hora)+'<br><small>Recebido por: '+esc(dv.recebedor)+'</small>':badge('Em uso')}</td><td>${esc(m.motivo)}<br><small>${esc(m.obs)}</small></td></tr>`}).join('')+'</tbody></table>';
 }
 
 function renderDashboard(){
@@ -502,10 +531,10 @@ function renderDashboard(){
   let disponiveisCount = 0;
   let usoCount = 0;
 
-  // Gerar os 40 ganchos na ordem por linha: A1..H1, A2..H2, A3..H3, A4..H4, A5..H5
+  // Gerar os 40 ganchos por linha: A1..H1, A2..H2, A3..H3...
   linhas.forEach(lin => {
     colunas.forEach(col => {
-      let pos = col + lin; // Ex: A1, B1, C1... H1 -> A2, B2...
+      let pos = col + lin;
       slotsMapeados.push(pos);
     });
   });
@@ -513,40 +542,59 @@ function renderDashboard(){
   let htmlGrid = '';
 
   slotsMapeados.forEach(pos => {
-    // Busca se existe alguma chave cadastrada na posição do local ou código
     let ch = db.chaves.find(c => (c.local || '').trim().toUpperCase() === pos || (c.codigo || '').trim().toUpperCase() === pos);
 
     if (ch) {
       chavesMapeadasIds.add(ch.id);
-      let m = movimentoAtivo(ch);
-      let p = pessoa(m?.pessoaId);
+      let total = parseInt(ch.totalCopias || 1);
+      let disp = copiasDisponiveis(ch);
+      let movsAtivos = movimentosAtivosChave(ch.id);
 
-      if (m) {
-        usoCount++;
-        htmlGrid += `
-        <div class="hook-slot busy" onclick="detalharChave('${ch.id}')" style="cursor:pointer">
-          <span class="hook-label">${pos}</span>
-          <div class="slot-code">${esc(ch.codigo)}</div>
-          <div class="slot-name">${esc(ch.nome)}</div>
-          <span class="slot-badge busy">EM USO</span>
-          <div class="slot-holder">
-            👤 <b>${esc(p?.nome || 'Informa')}</b><br>
-            🕒 ${esc(m?.hora || '')}
-          </div>
-        </div>`;
-      } else {
+      if (disp === total) {
+        // Todas no quadro
         disponiveisCount++;
         htmlGrid += `
         <div class="hook-slot available" onclick="detalharChave('${ch.id}')" style="cursor:pointer">
           <span class="hook-label">${pos}</span>
           <div class="slot-code">${esc(ch.codigo)}</div>
           <div class="slot-name">${esc(ch.nome)}</div>
-          <span class="slot-badge ok">DISPONÍVEL</span>
+          <span class="slot-badge ok">DISPONÍVEL (${disp}/${total})</span>
           <div></div>
+        </div>`;
+      } else if (disp > 0) {
+        // Parcialmente disponível
+        usoCount++;
+        let primeiroMov = movsAtivos[0];
+        let p = pessoa(primeiroMov?.pessoaId);
+        htmlGrid += `
+        <div class="hook-slot partial" onclick="detalharChave('${ch.id}')" style="cursor:pointer">
+          <span class="hook-label">${pos}</span>
+          <div class="slot-code">${esc(ch.codigo)}</div>
+          <div class="slot-name">${esc(ch.nome)}</div>
+          <span class="slot-badge partial">RESTAM ${disp}/${total}</span>
+          <div class="slot-holder">
+            👤 <b>${esc(p?.nome || 'Informa')}</b> (${primeiroMov.qtd||1} cóp)
+          </div>
+        </div>`;
+      } else {
+        // Todas retiradas
+        usoCount++;
+        let primeiroMov = movsAtivos[0];
+        let p = pessoa(primeiroMov?.pessoaId);
+        htmlGrid += `
+        <div class="hook-slot busy" onclick="detalharChave('${ch.id}')" style="cursor:pointer">
+          <span class="hook-label">${pos}</span>
+          <div class="slot-code">${esc(ch.codigo)}</div>
+          <div class="slot-name">${esc(ch.nome)}</div>
+          <span class="slot-badge busy">SEM ESTOQUE (0/${total})</span>
+          <div class="slot-holder">
+            👤 <b>${esc(p?.nome || 'Informa')}</b><br>
+            🕒 ${esc(primeiroMov?.hora || '')}
+          </div>
         </div>`;
       }
     } else {
-      // Gancho Vazio no Quadro
+      // Gancho Vazio
       htmlGrid += `
       <div class="hook-slot empty">
         <span class="hook-label">${pos}</span>
@@ -558,7 +606,6 @@ function renderDashboard(){
 
   boardGrid.innerHTML = htmlGrid;
 
-  // Atualizar contadores
   countDisponiveis.textContent = disponiveisCount;
   countUso.textContent = usoCount;
 
@@ -567,11 +614,12 @@ function renderDashboard(){
   if (outrasChaves.length > 0) {
     outrasChavesContainer.style.display = 'block';
     outrasChavesList.innerHTML = outrasChaves.map(ch => {
-      let m = movimentoAtivo(ch);
+      let disp = copiasDisponiveis(ch);
+      let total = ch.totalCopias || 1;
       return `<div style="padding:10px;background:#fff;border-radius:8px;border:1px solid #ccc;min-width:140px">
         <b>${esc(ch.codigo)}</b> - ${esc(ch.nome)}<br>
-        <small>Local: ${esc(ch.local || 'Outro')}</small><br>
-        ${badge(m ? 'Em uso' : ch.situacao)}
+        <small>Cópias: ${disp}/${total}</small><br>
+        ${badge(disp === 0 ? 'Em uso' : ch.situacao)}
       </div>`;
     }).join('');
   } else {
@@ -580,10 +628,19 @@ function renderDashboard(){
 }
 
 function detalharChave(cid){
- let c=chave(cid),movs=db.movimentos.filter(m=>m.chaveId===cid).slice().reverse();
+ let c=chave(cid), movs=db.movimentos.filter(m=>m.chaveId===cid).slice().reverse();
+ let disp = copiasDisponiveis(c);
+ let total = c.totalCopias || 1;
+
  modalTitulo.textContent=`${c.codigo} — ${c.nome}`;
- modalConteudo.innerHTML=`<p><b>Local/Gancho:</b> ${esc(c.local)||'-'}</p><p><b>Situação:</b> ${badge(movimentoAtivo(c)?'Em uso':c.situacao)}</p><p><b>Observação:</b> ${esc(c.obs)||'-'}</p><hr><h4>Histórico da chave</h4>`+
- (movs.length?`<table><tr><th>Retirada</th><th>Colaborador</th><th>Devolução</th></tr>${movs.map(m=>{let p=pessoa(m.pessoaId);return `<tr><td>${dataBR(m.data)} ${esc(m.hora)}</td><td>${esc(p?.nome||'Excluído')}</td><td>${m.devolucao?dataBR(m.devolucao.data)+' '+esc(m.devolucao.hora):'Em uso'}</td></tr>`}).join('')}</table>`:'<p>Sem histórico.</p>');
+ modalConteudo.innerHTML=`
+   <p><b>Local/Gancho:</b> ${esc(c.local)||'-'}</p>
+   <p><b>Cópias Disponíveis:</b> ${disp} de ${total}</p>
+   <p><b>Situação do Molho:</b> ${badge(disp===0?'Em uso':c.situacao)}</p>
+   <p><b>Observação:</b> ${esc(c.obs)||'-'}</p>
+   <hr>
+   <h4>Histórico de retiradas/devoluções</h4>`+
+ (movs.length?`<table><tr><th>Retirada</th><th>Colaborador</th><th>Qtd</th><th>Devolução</th></tr>${movs.map(m=>{let p=pessoa(m.pessoaId);return `<tr><td>${dataBR(m.data)} ${esc(m.hora)}</td><td>${esc(p?.nome||'Excluído')}</td><td>${m.qtd||1} cóp.</td><td>${m.devolucao?dataBR(m.devolucao.data)+' '+esc(m.devolucao.hora):'<b>Em uso</b>'}</td></tr>`}).join('')}</table>`:'<p>Sem histórico.</p>');
  modal.classList.add('show');
 }
 

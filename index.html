@@ -42,16 +42,23 @@ main{max-width:1400px;margin:10px auto;padding:0 24px}
 
 /* Dashboard Visual — Quadro de 40 Posições (8 Colunas x 5 Linhas) */
 .board-container{background:#f4f6f8;border-radius:12px;padding:20px;margin-bottom:24px;border:1px solid #e1e6eb}
-.board-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.board-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px}
 .board-header h2{margin:0;font-size:18px;font-weight:800;color:#333}
+.board-header-right{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .board-stats{display:flex;gap:12px}
 .stat-pill{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:bold;display:flex;align-items:center;gap:6px}
 .stat-pill.green{background:#dff5e7;color:#146c36}
 .stat-pill.red{background:#ffe0df;color:#a41414}
 
+/* Barra de Busca do Dashboard */
+.board-search-box{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #ccc;border-radius:20px;padding:4px 6px 4px 12px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.board-search-box input{border:none;outline:none;font-size:12px;width:180px;background:transparent;padding:0}
+.board-search-box button{background:#0029ff;color:#fff;border:none;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:bold;cursor:pointer}
+.board-search-box button:hover{background:#001fcc}
+
 .key-board-grid{display:grid;grid-template-columns:repeat(8, 1fr);gap:12px}
 
-.hook-slot{background:#fff;border:1px dashed #ccc;border-radius:10px;padding:8px;text-align:center;min-height:130px;display:flex;flex-direction:column;justify-content:space-between;position:relative}
+.hook-slot{background:#fff;border:1px dashed #ccc;border-radius:10px;padding:8px;text-align:center;min-height:130px;display:flex;flex-direction:column;justify-content:space-between;position:relative;transition:transform 0.2s, box-shadow 0.2s}
 .hook-label{font-size:10px;font-weight:bold;color:#aaa;background:#f0f2f5;border-radius:4px;padding:2px 4px;position:absolute;top:4px;left:4px}
 
 .hook-slot.empty{background:#f9fafb;border-style:dashed;color:#ccc;align-items:center;justify-content:center}
@@ -69,6 +76,18 @@ main{max-width:1400px;margin:10px auto;padding:0 24px}
 .slot-badge.busy{background:#d50000;color:#fff}
 
 .slot-holder{font-size:9px;color:#555;text-align:left;border-top:1px solid #ddd;padding-top:4px;margin-top:4px;line-height:1.2}
+
+/* Animação do Card Piscando */
+@keyframes highlightBlink {
+  0% { border-color: #0029ff; box-shadow: 0 0 15px rgba(0, 41, 255, 0.9); transform: scale(1.05); }
+  50% { border-color: #ff6d00; box-shadow: 0 0 25px rgba(255, 109, 0, 1); transform: scale(1.08); }
+  100% { border-color: #0029ff; box-shadow: 0 0 15px rgba(0, 41, 255, 0.9); transform: scale(1.05); }
+}
+
+.hook-slot.highlight-blink {
+  animation: highlightBlink 0.6s infinite alternate;
+  z-index: 10;
+}
 
 /* Estilos de formulários e tabelas */
 .panel{background:#f4f6f8;border-radius:8px;padding:18px;margin-bottom:18px}
@@ -108,8 +127,8 @@ th{background:#eee}
 <!-- Tela de Login Personalizada -->
 <div id="loginScreen">
   <div class="login-header">
-    <h1>Controle de chaves🔑</h1>
-    <h2>Jr Telecom nova matriz</h2>
+    <h1>Controle de chaves</h1>
+    <h2>JR Telecom nova matriz</h2>
   </div>
   
   <div class="login-body-wrapper">
@@ -143,9 +162,18 @@ th{background:#eee}
   <div class="board-container">
     <div class="board-header">
       <h2>📌 Quadro de Chaves</h2>
-      <div class="board-stats">
-        <span class="stat-pill green">🟢 Totalmente Disponíveis: <strong id="countDisponiveis">0</strong></span>
-        <span class="stat-pill red">🔴 Com Retirada / Em Uso: <strong id="countUso">0</strong></span>
+      
+      <div class="board-header-right">
+        <div class="board-stats">
+          <span class="stat-pill green">🟢 Totalmente Disponíveis: <strong id="countDisponiveis">0</strong></span>
+          <span class="stat-pill red">🔴 Com Retirada / Em Uso: <strong id="countUso">0</strong></span>
+        </div>
+
+        <!-- Barra de Busca no Canto Superior Direito -->
+        <div class="board-search-box">
+          <input type="text" id="dashSearchInput" placeholder="Local ou Chave (ex: A1, MKT)..." onkeypress="if(event.key==='Enter')buscarChaveDashboard()">
+          <button onclick="buscarChaveDashboard()">Buscar 🔍</button>
+        </div>
       </div>
     </div>
     
@@ -309,7 +337,7 @@ const svgKey = `<svg class="key-icon-svg" viewBox="0 0 512 512" xmlns="http://ww
   <circle cx="340" cy="172" r="105" fill="#FFB74D"/>
   <circle cx="372" cy="140" r="32" fill="#FFFFFF"/>
   <path d="M228 250 L38 440 L38 500 L88 500 L128 460 L128 430 L168 430 L168 390 L208 390 L248 350 L248 310 L278 280 Z" fill="#FFA726"/>
-  <path d="M200 280 L38 440 L38 500 L88 500 L118 470 L118 430 L158 430 L158 390 L198 390 Z" fill="#FB8C00"/>
+  <path d="M200 280 L38 440 L38 500 L88 500 L118 470 L118 430 L158 430 L158 390 L208 390 Z" fill="#FB8C00"/>
   <path d="M228 250 L188 290 L78 400 L38 440 L38 500 L63 500 L93 470 L128 470 L128 430 L168 430 L168 390 L208 390 L233 365 Z" fill="#F57C00"/>
 </svg>`;
 
@@ -337,12 +365,10 @@ function dataBR(d){if(!d)return '-';let [a,m,dia]=d.split('-');return `${dia}/${
 function chave(id){return db.chaves.find(x=>x.id===id)}
 function pessoa(id){return db.pessoas.find(x=>x.id===id)}
 
-// Retorna todas as retiradas ativas de uma chave
 function movimentosAtivosChave(cId){
   return db.movimentos.filter(x=>x.chaveId===cId && !x.devolucao);
 }
 
-// Calcula quantas cópias estão disponíveis no molho
 function copiasDisponiveis(c){
   let total = parseInt(c.totalCopias || 1);
   let retiradas = movimentosAtivosChave(c.id).reduce((acc, m) => acc + parseInt(m.qtd || 1), 0);
@@ -511,7 +537,7 @@ function renderDevolucoes(){
  let arr=db.movimentos.filter(m=>!m.devolucao);
  if(!arr.length){devolucoes.innerHTML='<div class="empty">Nenhuma chave/cópia em uso.</div>';return}
  devolucoes.innerHTML=`<table><thead><tr><th>Chave</th><th>Colaborador</th><th>Qtd. Cópias</th><th>Retirada</th><th>Finalidade</th><th>Ação</th></tr></thead><tbody>`+
- arr.map(m=>{let c=chave(m.chaveId),p=pessoa(m.pessoaId);return `<tr><td>${esc(c?.codigo)}<br>${esc(c?.nome)}</td><td>${esc(p?.nome)}</td><td><b>${m.qtd || 1} cópia(s)</b></td><td>${dataBR(m.data)} ${esc(m.hora)}</td><td>${esc(m.motivo)}</td><td><button class="success" onclick="devolver('${m.id}')">Registrar devolução</button></td></tr>`}).join('')+'</tbody></table>';
+ arr.map(m=>{let c=chave(m.chaveId),p=pessoa(m.pessoaId);return `<tr><td>${esc(c?.codigo)}<br>${esc(c?.nome)}</td><td>${esc(p?.nome)}</td><td><b>${m.qtd || 1} cóp.</b></td><td>${dataBR(m.data)} ${esc(m.hora)}</td><td>${esc(m.motivo)}</td><td><button class="success" onclick="devolver('${m.id}')">Registrar devolução</button></td></tr>`}).join('')+'</tbody></table>';
 }
 
 function renderHistorico(){
@@ -531,7 +557,6 @@ function renderDashboard(){
   let disponiveisCount = 0;
   let usoCount = 0;
 
-  // Gerar os 40 ganchos por linha: A1..H1, A2..H2, A3..H3...
   linhas.forEach(lin => {
     colunas.forEach(col => {
       let pos = col + lin;
@@ -551,10 +576,9 @@ function renderDashboard(){
       let movsAtivos = movimentosAtivosChave(ch.id);
 
       if (disp === total) {
-        // Todas no quadro
         disponiveisCount++;
         htmlGrid += `
-        <div class="hook-slot available" onclick="detalharChave('${ch.id}')" style="cursor:pointer">
+        <div class="hook-slot available" id="slot-${pos}" data-codigo="${esc(ch.codigo)}" data-nome="${esc(ch.nome)}" onclick="detalharChave('${ch.id}')" style="cursor:pointer">
           <span class="hook-label">${pos}</span>
           <div class="slot-code">${esc(ch.codigo)}</div>
           <div class="slot-name">${esc(ch.nome)}</div>
@@ -562,12 +586,11 @@ function renderDashboard(){
           <div></div>
         </div>`;
       } else if (disp > 0) {
-        // Parcialmente disponível
         usoCount++;
         let primeiroMov = movsAtivos[0];
         let p = pessoa(primeiroMov?.pessoaId);
         htmlGrid += `
-        <div class="hook-slot partial" onclick="detalharChave('${ch.id}')" style="cursor:pointer">
+        <div class="hook-slot partial" id="slot-${pos}" data-codigo="${esc(ch.codigo)}" data-nome="${esc(ch.nome)}" onclick="detalharChave('${ch.id}')" style="cursor:pointer">
           <span class="hook-label">${pos}</span>
           <div class="slot-code">${esc(ch.codigo)}</div>
           <div class="slot-name">${esc(ch.nome)}</div>
@@ -577,12 +600,11 @@ function renderDashboard(){
           </div>
         </div>`;
       } else {
-        // Todas retiradas
         usoCount++;
         let primeiroMov = movsAtivos[0];
         let p = pessoa(primeiroMov?.pessoaId);
         htmlGrid += `
-        <div class="hook-slot busy" onclick="detalharChave('${ch.id}')" style="cursor:pointer">
+        <div class="hook-slot busy" id="slot-${pos}" data-codigo="${esc(ch.codigo)}" data-nome="${esc(ch.nome)}" onclick="detalharChave('${ch.id}')" style="cursor:pointer">
           <span class="hook-label">${pos}</span>
           <div class="slot-code">${esc(ch.codigo)}</div>
           <div class="slot-name">${esc(ch.nome)}</div>
@@ -594,9 +616,8 @@ function renderDashboard(){
         </div>`;
       }
     } else {
-      // Gancho Vazio
       htmlGrid += `
-      <div class="hook-slot empty">
+      <div class="hook-slot empty" id="slot-${pos}">
         <span class="hook-label">${pos}</span>
         <div class="empty-text">Vazio</div>
         <div></div>
@@ -609,7 +630,6 @@ function renderDashboard(){
   countDisponiveis.textContent = disponiveisCount;
   countUso.textContent = usoCount;
 
-  // Chaves fora do padrão A1..H5
   let outrasChaves = db.chaves.filter(c => !chavesMapeadasIds.has(c.id));
   if (outrasChaves.length > 0) {
     outrasChavesContainer.style.display = 'block';
@@ -624,6 +644,52 @@ function renderDashboard(){
     }).join('');
   } else {
     outrasChavesContainer.style.display = 'none';
+  }
+}
+
+// Função para buscar e fazer piscar o slot no Dashboard
+function buscarChaveDashboard(){
+  let termo = (dashSearchInput.value || '').trim().toLowerCase();
+  if(!termo) return;
+
+  // Remove qualquer destaque anterior
+  document.querySelectorAll('.hook-slot').forEach(el => el.classList.remove('highlight-blink'));
+
+  // Procura por posição (ex: A1, E5), pelo código ou pelo nome
+  let encontrado = null;
+
+  // 1. Tenta por ID de posição direta (slot-A1)
+  let posFormatted = termo.toUpperCase();
+  let elemPos = document.getElementById('slot-' + posFormatted);
+  
+  if(elemPos){
+    encontrado = elemPos;
+  } else {
+    // 2. Tenta por nome ou código da chave nos atributos dos slots
+    let slots = document.querySelectorAll('.hook-slot[data-codigo]');
+    for(let slot of slots){
+      let codigo = (slot.getAttribute('data-codigo') || '').toLowerCase();
+      let nome = (slot.getAttribute('data-nome') || '').toLowerCase();
+      if(codigo.includes(termo) || nome.includes(termo)){
+        encontrado = slot;
+        break;
+      }
+    }
+  }
+
+  if(encontrado){
+    // Rola a tela até a chave encontrada
+    encontrado.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Adiciona a classe piscante
+    encontrado.classList.add('highlight-blink');
+
+    // Remove o efeito piscante após 5 segundos
+    setTimeout(() => {
+      encontrado.classList.remove('highlight-blink');
+    }, 5000);
+  } else {
+    alert('Chave ou posição "' + dashSearchInput.value + '" não foi encontrada no quadro.');
   }
 }
 

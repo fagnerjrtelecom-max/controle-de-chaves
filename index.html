@@ -8,22 +8,30 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#222;position:relative;min-height:100vh;overflow-x:hidden}
 
-/* Tela de Login Personalizada */
-#loginScreen{position:fixed;inset:0;background:#f0f2f5;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;padding:20px}
-.login-header{text-align:center;margin-bottom:30px}
-.login-header h1{font-size:28px;font-weight:900;font-style:italic;color:#333;margin:0 0 6px 0;letter-spacing:-0.5px}
-.login-header h2{font-size:24px;font-weight:900;font-style:italic;color:#333;margin:0;letter-spacing:-0.5px}
+/* Tela de Login Estilo Moderno */
+#loginScreen{position:fixed;inset:0;background:#060a17;display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.login-card{display:flex;width:min(900px, 95%);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.5)}
 
-.login-body-wrapper{display:flex;align-items:center;justify-content:center;gap:40px;width:100%;max-width:900px;position:relative}
+/* Lado Esquerdo (Azul) */
+.login-left{flex:1;background:linear-gradient(135deg, #001188 0%, #000444 100%);padding:36px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;position:relative}
+.login-brand{font-size:12px;font-weight:bold;letter-spacing:1px;color:#00d2ff;display:flex;align-items:center;gap:6px}
+.login-mascote-wrapper{display:flex;align-items:center;justify-content:center;flex:1;margin:20px 0}
+.login-mascote{max-height:260px;width:auto;object-fit:contain;filter:drop-shadow(0 10px 15px rgba(0,0,0,0.4))}
+.login-footer-text h3{margin:0 0 6px 0;font-size:20px;font-weight:bold}
+.login-footer-text p{margin:0;font-size:12px;color:#a0b2ee;line-height:1.4}
 
-.login-box{background:#fff;padding:32px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.08);width:min(380px,100%);text-align:center}
-.login-box h3{margin:0 0 8px;color:#ff6d00;font-size:20px;font-weight:bold}
-.login-box p{font-size:12px;color:#666;margin-bottom:20px}
-.login-box input{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:14px;margin-bottom:14px;text-align:center}
-.login-box button{width:100%;padding:10px;background:#0029ff;color:#fff;border:0;border-radius:6px;font-weight:bold;cursor:pointer;font-size:14px;transition:0.2s}
-.login-box button:hover{background:#001fcc}
+/* Lado Direito (Branco) */
+.login-right{flex:1;padding:48px 36px;display:flex;flex-direction:column;justify-content:center;background:#fff}
+.login-right h2{margin:0 0 6px 0;color:#0a192f;font-size:26px;font-weight:bold}
+.login-right p.subtitle{margin:0 0 28px 0;font-size:13px;color:#64748b}
 
-.login-mascote{height:360px;object-fit:contain}
+.input-group{margin-bottom:18px;text-align:left}
+.input-group label{display:block;font-size:11px;font-weight:bold;color:#0066ff;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.input-group input{width:100%;padding:12px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;outline:none;transition:0.2s;background:#f8fafc}
+.input-group input:focus{border-color:#0029ff;background:#fff;box-shadow:0 0 0 3px rgba(0,41,255,0.1)}
+
+.btn-login{width:100%;padding:14px;background:#0029ff;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:0.2s;margin-top:10px}
+.btn-login:hover{background:#001fcc;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,41,255,0.3)}
 
 /* Header Laranja */
 header{background:#ff6d00;color:#000;padding:16px 24px;font-weight:bold;display:flex;align-items:center;justify-content:space-between;min-height:65px}
@@ -116,30 +124,50 @@ th{background:#eee}
   .key-board-grid{grid-template-columns:repeat(4, 1fr)}
 }
 @media(max-width:768px){
-  .login-body-wrapper{flex-direction:column}
-  .login-mascote{height:250px}
+  .login-card{flex-direction:column}
+  .login-left{padding:24px;min-height:220px}
+  .login-mascote{max-height:160px}
   .key-board-grid{grid-template-columns:repeat(2, 1fr)}
 }
 </style>
 </head>
 <body>
 
-<!-- Tela de Login Personalizada -->
 <div id="loginScreen">
-  <div class="login-header">
-    <h1>Controle de chaves</h1>
-    <h2>JR Telecom nova matriz</h2>
-  </div>
-  
-  <div class="login-body-wrapper">
-    <div class="login-box">
-      <h3>Acesso Restrito</h3>
-      <p>Digite a senha para acessar o controle de chaves</p>
-      <input type="password" id="passInput" placeholder="Sua senha" onkeypress="if(event.key==='Enter')validarSenha()">
-      <button onclick="validarSenha()">Entrar no Sistema</button>
+  <div class="login-card">
+    <div class="login-left">
+      <div class="login-brand">
+        ⚡ CONTROLE DE CHAVES V2
+      </div>
+      
+      <div class="login-mascote-wrapper">
+        <img src="https://lh3.googleusercontent.com/d/1W22GkelvWyfQjvKoJxYphvopSk-tDRc6" alt="Mascote JR Telecom" class="login-mascote">
+      </div>
+
+      <div class="login-footer-text">
+        <h3>Acesso Seguro</h3>
+        <p>Controle inteligente de chaves e acessos da JR Telecom nova matriz.</p>
+      </div>
     </div>
-    
-    <img src="https://lh3.googleusercontent.com/d/1W22GkelvWyfQjvKoJxYphvopSk-tDRc6" alt="Mascote JR Telecom" class="login-mascote">
+
+    <div class="login-right">
+      <h2>Bem-vindo!</h2>
+      <p class="subtitle">Digite seus dados para acessar o sistema.</p>
+
+      <div class="input-group">
+        <label>Usuário</label>
+        <input type="text" id="userInput" placeholder="Digite seu usuário" value="admin">
+      </div>
+
+      <div class="input-group">
+        <label>Senha</label>
+        <input type="password" id="passInput" placeholder="Digite sua senha" onkeypress="if(event.key==='Enter')validarSenha()">
+      </div>
+
+      <button class="btn-login" onclick="validarSenha()">
+        Entrar no Sistema ➔
+      </button>
+    </div>
   </div>
 </div>
 
@@ -169,7 +197,6 @@ th{background:#eee}
           <span class="stat-pill red">🔴 Com Retirada / Em Uso: <strong id="countUso">0</strong></span>
         </div>
 
-        <!-- Barra de Busca no Canto Superior Direito -->
         <div class="board-search-box">
           <input type="text" id="dashSearchInput" placeholder="Local ou Chave (ex: A1, MKT)..." onkeypress="if(event.key==='Enter')buscarChaveDashboard()">
           <button onclick="buscarChaveDashboard()">Buscar 🔍</button>
@@ -177,7 +204,6 @@ th{background:#eee}
       </div>
     </div>
     
-    <!-- Grade 8 Colunas (A-H) x 5 Linhas (1-5) -->
     <div class="key-board-grid" id="boardGrid"></div>
   </div>
 
@@ -284,7 +310,6 @@ th{background:#eee}
  </div>
 </div>
 
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
@@ -647,25 +672,20 @@ function renderDashboard(){
   }
 }
 
-// Função para buscar e fazer piscar o slot no Dashboard
 function buscarChaveDashboard(){
   let termo = (dashSearchInput.value || '').trim().toLowerCase();
   if(!termo) return;
 
-  // Remove qualquer destaque anterior
   document.querySelectorAll('.hook-slot').forEach(el => el.classList.remove('highlight-blink'));
 
-  // Procura por posição (ex: A1, E5), pelo código ou pelo nome
   let encontrado = null;
 
-  // 1. Tenta por ID de posição direta (slot-A1)
   let posFormatted = termo.toUpperCase();
   let elemPos = document.getElementById('slot-' + posFormatted);
   
   if(elemPos){
     encontrado = elemPos;
   } else {
-    // 2. Tenta por nome ou código da chave nos atributos dos slots
     let slots = document.querySelectorAll('.hook-slot[data-codigo]');
     for(let slot of slots){
       let codigo = (slot.getAttribute('data-codigo') || '').toLowerCase();
@@ -678,13 +698,9 @@ function buscarChaveDashboard(){
   }
 
   if(encontrado){
-    // Rola a tela até a chave encontrada
     encontrado.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
-    // Adiciona a classe piscante
     encontrado.classList.add('highlight-blink');
 
-    // Remove o efeito piscante após 5 segundos
     setTimeout(() => {
       encontrado.classList.remove('highlight-blink');
     }, 5000);

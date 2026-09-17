@@ -8,26 +8,19 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#222;position:relative;min-height:100vh;overflow-x:hidden}
 
-/* Tela de Login Estilo Moderno */
+/* Tela de Login Estilo Moderno - Tamanho Original */
 #loginScreen{position:fixed;inset:0;background:#060a17;display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
-
-.login-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 30px;
-  position: relative;
-  max-width: 1200px;
-  width: 100%;
-  justify-content: center;
-}
-
 .login-card{display:flex;width:min(900px, 95%);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.5)}
 
 /* Lado Esquerdo (Azul) */
 .login-left{flex:1;background:linear-gradient(135deg, #001188 0%, #000444 100%);padding:36px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;position:relative}
 .login-brand{font-size:12px;font-weight:bold;letter-spacing:1px;color:#00d2ff;display:flex;align-items:center;gap:6px}
-.login-mascote-wrapper{display:flex;align-items:center;justify-content:center;flex:1;margin:20px 0}
-.login-mascote{max-height:260px;width:auto;object-fit:contain;filter:drop-shadow(0 10px 15px rgba(0,0,0,0.4))}
+
+/* Área da mídia: Logo do R na esquerda e Mascote no lado direito da área azul */
+.login-media-wrapper{display:flex;align-items:center;justify-content:space-between;flex:1;margin:20px 0;gap:10px}
+.login-logo-r{max-height:180px;width:auto;object-fit:contain;filter:drop-shadow(0 10px 15px rgba(0,0,0,0.4))}
+.login-mascote-right{max-height:210px;width:auto;object-fit:contain;filter:drop-shadow(0 10px 15px rgba(0,0,0,0.4))}
+
 .login-footer-text h3{margin:0 0 6px 0;font-size:20px;font-weight:bold}
 .login-footer-text p{margin:0;font-size:12px;color:#a0b2ee;line-height:1.4}
 
@@ -46,18 +39,6 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#222;
 
 .btn-login{width:100%;padding:14px;background:#000ADC;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:0.2s;margin-top:10px}
 .btn-login:hover{background:#0008b3;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,10,220,0.3)}
-
-/* MASCOTE MOVIDO PARA O LADO DIREITO DA TELA */
-.outer-mascote {
-  max-height: 380px;
-  width: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
-}
-
-@media (max-width: 1100px) {
-  .outer-mascote { display: none; }
-}
 
 /* Header Laranja */
 header{background:#ff6d00;color:#000;padding:16px 24px;font-weight:bold;display:flex;align-items:center;justify-content:space-between;min-height:65px}
@@ -152,7 +133,8 @@ th{background:#eee}
 @media(max-width:768px){
   .login-card{flex-direction:column}
   .login-left{padding:24px;min-height:220px}
-  .login-mascote{max-height:160px}
+  .login-logo-r{max-height:120px}
+  .login-mascote-right{max-height:140px}
   .key-board-grid{grid-template-columns:repeat(2, 1fr)}
 }
 </style>
@@ -160,48 +142,42 @@ th{background:#eee}
 <body>
 
 <div id="loginScreen">
-  <div class="login-wrapper">
-    
-    <div class="login-card">
-      <div class="login-left">
-        <div class="login-brand">
-          ⚡ CONTROLE DE CHAVES
-        </div>
-        
-        <!-- GIF MANTIDO NO LADO ESQUERDO -->
-        <div class="login-mascote-wrapper">
-          <img src="https://lh3.googleusercontent.com/d/1qJQXDfDcs_rF16nQZX1NSOKLEtQ3aUL7" alt="Acesso Seguro" class="login-mascote">
-        </div>
-
-        <div class="login-footer-text">
-          <h3>Acesso Seguro</h3>
-          <p>Desenvolvido por F.F.</p>
-        </div>
+  <div class="login-card">
+    <div class="login-left">
+      <div class="login-brand">
+        ⚡ CONTROLE DE CHAVES DA NOVA SEDE
+      </div>
+      
+      <!-- LOGO R NA ESQUERDA E MASCOTE NO LADO DIREITO DA ÁREA AZUL -->
+      <div class="login-media-wrapper">
+        <img src="https://lh3.googleusercontent.com/d/1qJQXDfDcs_rF16nQZX1NSOKLEtQ3aUL7" alt="Logo R JR Telecom" class="login-logo-r">
+        <img src="https://lh3.googleusercontent.com/d/1W22GkelvWyfQjvKoJxYphvopSk-tDRc6" alt="Mascote JR Telecom" class="login-mascote-right">
       </div>
 
-      <div class="login-right">
-        <h2>Bem-vindo!</h2>
-        <p class="subtitle">Digite seus dados para acessar o sistema.</p>
-
-        <div class="input-group">
-          <label>Usuário</label>
-          <input type="text" id="userInput" placeholder="Digite seu usuário" value="admin">
-        </div>
-
-        <div class="input-group">
-          <label>Senha</label>
-          <input type="password" id="passInput" placeholder="Digite sua senha" onkeypress="if(event.key==='Enter')validarSenha()">
-        </div>
-
-        <button class="btn-login" onclick="validarSenha()">
-          Entrar no Sistema ➔
-        </button>
+      <div class="login-footer-text">
+        <h3>Acesso Seguro</h3>
+        <p>Desenvolvido por F.F.</p>
       </div>
     </div>
 
-    <!-- MASCOTE DA CHAVE POSICIONADO NO LADO DIREITO -->
-    <img src="https://lh3.googleusercontent.com/d/1W22GkelvWyfQjvKoJxYphvopSk-tDRc6" alt="Mascote JR Telecom" class="outer-mascote">
+    <div class="login-right">
+      <h2>Bem-vindo!</h2>
+      <p class="subtitle">Digite seus dados para acessar o sistema.</p>
 
+      <div class="input-group">
+        <label>Usuário</label>
+        <input type="text" id="userInput" placeholder="Digite seu usuário" value="admin">
+      </div>
+
+      <div class="input-group">
+        <label>Senha</label>
+        <input type="password" id="passInput" placeholder="Digite sua senha" onkeypress="if(event.key==='Enter')validarSenha()">
+      </div>
+
+      <button class="btn-login" onclick="validarSenha()">
+        Entrar no Sistema ➔
+      </button>
+    </div>
   </div>
 </div>
 
@@ -348,7 +324,7 @@ th{background:#eee}
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <script>
-// SENHA DE ACESSO ORIGINAL
+// SCRIPT DE LOGIN ORIGINAL INTACTO
 const SENHA_CORRETA = "jr123";
 
 function validarSenha(){

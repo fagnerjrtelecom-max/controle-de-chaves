@@ -25,7 +25,7 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(--text-main);position:relative;min-height:100vh;overflow-x:hidden}
 
-/* LOGIN SPLIT (IGUAL AO ESTOQUE) */
+/* LOGIN SPLIT */
 #loginScreen {
   position: fixed;
   top: 0; left: 0; width: 100vw; height: 100vh;
@@ -59,7 +59,6 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
   border: 1px solid var(--border);
 }
 
-/* Lado Esquerdo (Azul Escuro com o Logo) */
 .login-banner {
   flex: 1.1;
   background: linear-gradient(135deg, #020720, var(--azul-escuro));
@@ -104,7 +103,6 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
 .banner-footer h3 { margin: 0 0 6px 0; font-size: 22px; font-weight: 800; color: #ffffff; }
 .banner-footer p { margin: 0; font-size: 13px; color: rgba(255, 255, 255, 0.7); line-height: 1.4; }
 
-/* Lado Direito (Caixa de Login Branca com Cores do Estoque) */
 .login-box { flex: 1; padding: 48px; display: flex; flex-direction: column; justify-content: center; background: #ffffff; }
 .login-box-header { margin-bottom: 28px; text-align: left; }
 .login-box-header h2 { margin: 0 0 6px 0; font-size: 26px; font-weight: 800; color: var(--azul-escuro); }
@@ -113,11 +111,10 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
 .login-form { display: flex; flex-direction: column; gap: 18px; }
 .login-form .field { display: flex; flex-direction: column; gap: 6px; }
 
-/* Rótulos USUÁRIO e SENHA em Azul Vibrante Igual ao Estoque */
 .login-form label { 
   font-size: 12px; 
   font-weight: 800; 
-  color: #475569; 
+  color: var(--azul-escuro); 
   text-transform: uppercase; 
   letter-spacing: 0.5px; 
 }
@@ -143,7 +140,6 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
 }
 .btn-login:hover { background: var(--azul-claro); box-shadow: 0 6px 18px rgba(0, 185, 255, 0.3); }
 
-/* MASCOTE FORA DO CARD (LADO DIREITO DA TELA) */
 .outer-mascote {
   max-height: 380px;
   width: auto;
@@ -152,7 +148,7 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
 }
 
 @media (max-width: 1100px) {
-  .outer-mascote { display: none; } /* Oculta em telas menores para não quebrar o layout */
+  .outer-mascote { display: none; }
 }
 
 @media (max-width: 768px) {
@@ -162,22 +158,18 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
   .banner-gif { max-height: 140px; }
 }
 
-/* Header Laranja */
 header{background:#ff6d00;color:#000;padding:16px 24px;font-weight:bold;display:flex;align-items:center;justify-content:space-between;min-height:65px}
 header h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-0.5px}
 .btn-logout{background:#000;color:#fff;border-radius:12px;padding:6px 14px;font-size:11px;cursor:pointer;border:none;font-weight:bold}
 
-/* Navegação com Pílulas */
 nav{background:#fff;padding:14px 24px;display:flex;gap:10px;flex-wrap:wrap}
 button{border:0;border-radius:20px;padding:8px 18px;cursor:pointer;font-weight:bold;font-size:13px;transition:.2s}
 .navbtn{background:#e2e5e9;color:#000}
 .navbtn.active{background:#0029ff;color:#fff}
 
-/* Layout Principal */
 main{max-width:1400px;margin:10px auto;padding:0 24px}
 .page{display:none}.page.active{display:block}
 
-/* Dashboard Visual — Quadro de 40 Posições */
 .board-container{background:#f4f6f8;border-radius:12px;padding:20px;margin-bottom:24px;border:1px solid #e1e6eb}
 .board-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px}
 .board-header h2{margin:0;font-size:18px;font-weight:800;color:#333}
@@ -256,7 +248,6 @@ th{background:#eee}
 </head>
 <body>
 
-<!-- TELA DE LOGIN FORMATO ESTOQUE COM MASCOTE NO CANTO DIREITO -->
 <div id="loginScreen">
   <div class="login-wrapper">
     
@@ -283,7 +274,7 @@ th{background:#eee}
         <div class="login-form">
           <div class="field">
             <label>Usuário</label>
-            <input type="text" id="userInput" placeholder="Digite seu usuário" value="admin">
+            <input type="text" id="userInput" placeholder="Digite seu usuário">
           </div>
 
           <div class="field">
@@ -451,17 +442,20 @@ th{background:#eee}
 const SENHA_CORRETA = "jr123";
 
 function validarSenha(){
-  if(passInput.value === SENHA_CORRETA){
+  const user = document.getElementById('userInput').value.trim();
+  const pass = document.getElementById('passInput').value.trim();
+
+  if(pass === SENHA_CORRETA){
     localStorage.setItem('jr_auth', 'true');
     liberarAcesso();
   } else {
     alert("Senha incorreta!");
-    passInput.value = '';
+    document.getElementById('passInput').value = '';
   }
 }
 
 function liberarAcesso(){
-  loginScreen.style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'none';
   renderTudo();
 }
 

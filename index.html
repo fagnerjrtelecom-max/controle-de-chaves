@@ -8,7 +8,7 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#222;position:relative;min-height:100vh;overflow-x:hidden}
 
-/* Tela de Login Estilo Moderno - Tamanho Original */
+/* Tela de Login Estilo Moderno - Layout Original */
 #loginScreen{position:fixed;inset:0;background:#060a17;display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
 .login-card{display:flex;width:min(900px, 95%);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.5)}
 
@@ -16,10 +16,10 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#222;
 .login-left{flex:1;background:linear-gradient(135deg, #001188 0%, #000444 100%);padding:36px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;position:relative}
 .login-brand{font-size:12px;font-weight:bold;letter-spacing:1px;color:#00d2ff;display:flex;align-items:center;gap:6px}
 
-/* Área da mídia: Logo do R na esquerda e Mascote no lado direito da área azul */
-.login-media-wrapper{display:flex;align-items:center;justify-content:space-between;flex:1;margin:20px 0;gap:10px}
-.login-logo-r{max-height:180px;width:auto;object-fit:contain;filter:drop-shadow(0 10px 15px rgba(0,0,0,0.4))}
-.login-mascote-right{max-height:210px;width:auto;object-fit:contain;filter:drop-shadow(0 10px 15px rgba(0,0,0,0.4))}
+/* Área Mídia: Marca na esquerda e Mascote no lado direito do banner azul */
+.login-mascote-wrapper{display:flex;align-items:center;justify-content:space-between;flex:1;margin:20px 0;gap:10px}
+.login-logo-gif{max-height:180px;width:auto;object-fit:contain;filter:drop-shadow(0 10px 15px rgba(0,0,0,0.4))}
+.login-mascote{max-height:220px;width:auto;object-fit:contain;filter:drop-shadow(0 10px 15px rgba(0,0,0,0.4))}
 
 .login-footer-text h3{margin:0 0 6px 0;font-size:20px;font-weight:bold}
 .login-footer-text p{margin:0;font-size:12px;color:#a0b2ee;line-height:1.4}
@@ -31,7 +31,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#222;
 
 .input-group{margin-bottom:18px;text-align:left}
 
-/* MUDANÇA DA COR DOS RÓTULOS PARA #000ADC */
+/* COR DOS RÓTULOS USUÁRIO E SENHA PADRONIZADOS (#000ADC) */
 .input-group label{display:block;font-size:11px;font-weight:bold;color:#000ADC;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
 
 .input-group input{width:100%;padding:12px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;outline:none;transition:0.2s;background:#f8fafc}
@@ -133,8 +133,8 @@ th{background:#eee}
 @media(max-width:768px){
   .login-card{flex-direction:column}
   .login-left{padding:24px;min-height:220px}
-  .login-logo-r{max-height:120px}
-  .login-mascote-right{max-height:140px}
+  .login-logo-gif{max-height:120px}
+  .login-mascote{max-height:140px}
   .key-board-grid{grid-template-columns:repeat(2, 1fr)}
 }
 </style>
@@ -145,13 +145,13 @@ th{background:#eee}
   <div class="login-card">
     <div class="login-left">
       <div class="login-brand">
-        ⚡ CONTROLE DE CHAVES DA NOVA SEDE
+        ⚡ CONTROLE DE CHAVES
       </div>
       
-      <!-- LOGO R NA ESQUERDA E MASCOTE NO LADO DIREITO DA ÁREA AZUL -->
-      <div class="login-media-wrapper">
-        <img src="https://lh3.googleusercontent.com/d/1qJQXDfDcs_rF16nQZX1NSOKLEtQ3aUL7" alt="Logo R JR Telecom" class="login-logo-r">
-        <img src="https://lh3.googleusercontent.com/d/1W22GkelvWyfQjvKoJxYphvopSk-tDRc6" alt="Mascote JR Telecom" class="login-mascote-right">
+      <!-- LOGO R NA ESQUERDA E MASCOTE NO LADO DIREITO DA ÁREA AZUL DO BANNER -->
+      <div class="login-mascote-wrapper">
+        <img src="https://lh3.googleusercontent.com/d/1qJQXDfDcs_rF16nQZX1NSOKLEtQ3aUL7" alt="Acesso Seguro" class="login-logo-gif">
+        <img src="https://lh3.googleusercontent.com/d/1W22GkelvWyfQjvKoJxYphvopSk-tDRc6" alt="Mascote JR Telecom" class="login-mascote">
       </div>
 
       <div class="login-footer-text">
@@ -324,7 +324,7 @@ th{background:#eee}
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <script>
-// SCRIPT DE LOGIN ORIGINAL INTACTO
+// SENHA DE ACESSO INTACTA
 const SENHA_CORRETA = "jr123";
 
 function validarSenha(){
@@ -538,7 +538,7 @@ function excluirPessoa(i){
 
 function renderPessoas(){
  let q=(buscaPessoa.value||'').toLowerCase(),arr=db.pessoas.filter(p=>JSON.stringify(p).toLowerCase().includes(q));
- if(!arr.length){listaPessoas.innerHTML='<div class="empty">Nenhum colaborador cadastrado.</div>';return}
+ if(!arr.length){listaPessoas.innerHTML='<div class="empty">Nenum colaborador cadastrado.</div>';return}
  listaPessoas.innerHTML=`<table><thead><tr><th>Nome</th><th>Setor</th><th>Observação</th><th>Ações</th></tr></thead><tbody>`+
  arr.map(p=>{let i=db.pessoas.indexOf(p);return `<tr><td>${esc(p.nome)}</td><td>${esc(p.setor)}</td><td>${esc(p.obs)}</td><td><button class="secondary" onclick="editarPessoa('${p.id}')">Editar</button> <button class="danger" onclick="excluirPessoa(${i})">Excluir</button></td></tr>`}).join('')+'</tbody></table>';
 }

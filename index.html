@@ -4,38 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Controle de chaves nova sede JR Telecom</title>
-
-<!-- Fonte Inter e Ícones Lucide -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/lucide@latest"></script>
-
 <style>
-:root {
-  --azul-escuro: #000ADC;
-  --azul-claro: #00B9FF;
-  --bg-app: #f0f4f9;
-  --border: #dbe3ee;
-  --text-main: #0c152a;
-  --text-muted: #62728d;
-  --radius-md: 8px;
-}
-
 *{box-sizing:border-box}
-body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(--text-main);position:relative;min-height:100vh;overflow-x:hidden}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#222;position:relative;min-height:100vh;overflow-x:hidden}
 
-/* LOGIN SPLIT */
-#loginScreen {
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  background: #060b26;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  padding: 20px;
-}
+/* Tela de Login Estilo Moderno */
+#loginScreen{position:fixed;inset:0;background:#060a17;display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
 
 .login-wrapper {
   display: flex;
@@ -47,99 +21,33 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
   justify-content: center;
 }
 
-.login-container {
-  background: white;
-  width: 100%;
-  max-width: 960px;
-  min-height: 540px;
-  border-radius: 20px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
-  display: flex;
-  overflow: hidden;
-  border: 1px solid var(--border);
-}
+.login-card{display:flex;width:min(900px, 95%);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.5)}
 
-.login-banner {
-  flex: 1.1;
-  background: linear-gradient(135deg, #020720, var(--azul-escuro));
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 40px;
-  position: relative;
-  overflow: hidden;
-  color: white;
-}
+/* Lado Esquerdo (Azul) */
+.login-left{flex:1;background:linear-gradient(135deg, #001188 0%, #000444 100%);padding:36px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;position:relative}
+.login-brand{font-size:12px;font-weight:bold;letter-spacing:1px;color:#00d2ff;display:flex;align-items:center;gap:6px}
+.login-mascote-wrapper{display:flex;align-items:center;justify-content:center;flex:1;margin:20px 0}
+.login-mascote{max-height:260px;width:auto;object-fit:contain;filter:drop-shadow(0 10px 15px rgba(0,0,0,0.4))}
+.login-footer-text h3{margin:0 0 6px 0;font-size:20px;font-weight:bold}
+.login-footer-text p{margin:0;font-size:12px;color:#a0b2ee;line-height:1.4}
 
-.banner-brand { 
-  font-size: 14px; 
-  font-weight: 800; 
-  letter-spacing: 1px; 
-  color: var(--azul-claro); 
-  display: flex; 
-  align-items: center; 
-  gap: 8px; 
-  text-transform: uppercase; 
-  z-index: 2; 
-}
+/* Lado Direito (Branco) */
+.login-right{flex:1;padding:48px 36px;display:flex;flex-direction:column;justify-content:center;background:#fff}
+.login-right h2{margin:0 0 6px 0;color:#000ADC;font-size:26px;font-weight:bold}
+.login-right p.subtitle{margin:0 0 28px 0;font-size:13px;color:#64748b}
 
-.banner-gif-container { 
-  flex: 1; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  padding: 10px 0; 
-  z-index: 2; 
-}
+.input-group{margin-bottom:18px;text-align:left}
 
-.banner-gif { 
-  max-width: 85%; 
-  max-height: 250px; 
-  object-fit: contain; 
-  filter: drop-shadow(0 10px 20px rgba(0, 185, 255, 0.25)); 
-}
+/* MUDANÇA DA COR DOS RÓTULOS PARA #000ADC */
+.input-group label{display:block;font-size:11px;font-weight:bold;color:#000ADC;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
 
-.banner-footer { z-index: 2; }
-.banner-footer h3 { margin: 0 0 6px 0; font-size: 22px; font-weight: 800; color: #ffffff; }
-.banner-footer p { margin: 0; font-size: 13px; color: rgba(255, 255, 255, 0.7); line-height: 1.4; }
+.input-group input{width:100%;padding:12px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;outline:none;transition:0.2s;background:#f8fafc}
+.input-group input:focus{border-color:#000ADC;background:#fff;box-shadow:0 0 0 3px rgba(0,10,220,0.1)}
 
-.login-box { flex: 1; padding: 48px; display: flex; flex-direction: column; justify-content: center; background: #ffffff; }
-.login-box-header { margin-bottom: 28px; text-align: left; }
-.login-box-header h2 { margin: 0 0 6px 0; font-size: 26px; font-weight: 800; color: var(--azul-escuro); }
-.login-box-header p { margin: 0; font-size: 14px; color: var(--text-muted); }
+.btn-login{width:100%;padding:14px;background:#000ADC;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:0.2s;margin-top:10px}
+.btn-login:hover{background:#0008b3;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,10,220,0.3)}
 
-.login-form { display: flex; flex-direction: column; gap: 18px; }
-.login-form .field { display: flex; flex-direction: column; gap: 6px; }
-
-.login-form label { 
-  font-size: 12px; 
-  font-weight: 800; 
-  color: var(--azul-escuro); 
-  text-transform: uppercase; 
-  letter-spacing: 0.5px; 
-}
-
-.login-form input {
-  padding: 12px 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  font-size: 14px;
-  transition: all 0.2s;
-  background: #fdfefe;
-}
-
-.login-form input:focus {
-  outline: none;
-  border-color: var(--azul-claro);
-  box-shadow: 0 0 0 3px rgba(0, 185, 255, 0.15);
-}
-
-.btn-login {
-  background: var(--azul-escuro); color: white; border: 0; padding: 13px; border-radius: var(--radius-md);
-  font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; transition: all 0.2s;
-}
-.btn-login:hover { background: var(--azul-claro); box-shadow: 0 6px 18px rgba(0, 185, 255, 0.3); }
-
+/* MASCOTE MOVIDO PARA O LADO DIREITO DA TELA */
 .outer-mascote {
   max-height: 380px;
   width: auto;
@@ -151,25 +59,22 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
   .outer-mascote { display: none; }
 }
 
-@media (max-width: 768px) {
-  .login-container { flex-direction: column; }
-  .login-banner { padding: 24px; min-height: 200px; }
-  .login-box { padding: 28px; }
-  .banner-gif { max-height: 140px; }
-}
-
+/* Header Laranja */
 header{background:#ff6d00;color:#000;padding:16px 24px;font-weight:bold;display:flex;align-items:center;justify-content:space-between;min-height:65px}
 header h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-0.5px}
 .btn-logout{background:#000;color:#fff;border-radius:12px;padding:6px 14px;font-size:11px;cursor:pointer;border:none;font-weight:bold}
 
+/* Navegação com Pílulas */
 nav{background:#fff;padding:14px 24px;display:flex;gap:10px;flex-wrap:wrap}
 button{border:0;border-radius:20px;padding:8px 18px;cursor:pointer;font-weight:bold;font-size:13px;transition:.2s}
 .navbtn{background:#e2e5e9;color:#000}
 .navbtn.active{background:#0029ff;color:#fff}
 
+/* Layout Principal */
 main{max-width:1400px;margin:10px auto;padding:0 24px}
 .page{display:none}.page.active{display:block}
 
+/* Dashboard Visual — Quadro de 40 Posições (8 Colunas x 5 Linhas) */
 .board-container{background:#f4f6f8;border-radius:12px;padding:20px;margin-bottom:24px;border:1px solid #e1e6eb}
 .board-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px}
 .board-header h2{margin:0;font-size:18px;font-weight:800;color:#333}
@@ -179,6 +84,7 @@ main{max-width:1400px;margin:10px auto;padding:0 24px}
 .stat-pill.green{background:#dff5e7;color:#146c36}
 .stat-pill.red{background:#ffe0df;color:#a41414}
 
+/* Barra de Busca do Dashboard */
 .board-search-box{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #ccc;border-radius:20px;padding:4px 6px 4px 12px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
 .board-search-box input{border:none;outline:none;font-size:12px;width:180px;background:transparent;padding:0}
 .board-search-box button{background:#0029ff;color:#fff;border:none;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:bold;cursor:pointer}
@@ -205,6 +111,7 @@ main{max-width:1400px;margin:10px auto;padding:0 24px}
 
 .slot-holder{font-size:9px;color:#555;text-align:left;border-top:1px solid #ddd;padding-top:4px;margin-top:4px;line-height:1.2}
 
+/* Animação do Card Piscando */
 @keyframes highlightBlink {
   0% { border-color: #0029ff; box-shadow: 0 0 15px rgba(0, 41, 255, 0.9); transform: scale(1.05); }
   50% { border-color: #ff6d00; box-shadow: 0 0 25px rgba(255, 109, 0, 1); transform: scale(1.08); }
@@ -216,6 +123,7 @@ main{max-width:1400px;margin:10px auto;padding:0 24px}
   z-index: 10;
 }
 
+/* Estilos de formulários e tabelas */
 .panel{background:#f4f6f8;border-radius:8px;padding:18px;margin-bottom:18px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 label{display:block;font-size:12px;font-weight:bold;margin:8px 0 4px}
@@ -242,6 +150,9 @@ th{background:#eee}
   .key-board-grid{grid-template-columns:repeat(4, 1fr)}
 }
 @media(max-width:768px){
+  .login-card{flex-direction:column}
+  .login-left{padding:24px;min-height:220px}
+  .login-mascote{max-height:160px}
   .key-board-grid{grid-template-columns:repeat(2, 1fr)}
 }
 </style>
@@ -251,45 +162,44 @@ th{background:#eee}
 <div id="loginScreen">
   <div class="login-wrapper">
     
-    <div class="login-container">
-      <div class="login-banner">
-        <div class="banner-brand"><i data-lucide="key-round" size="20"></i> CONTROLE DE CHAVES DA NOVA SEDE</div>
+    <div class="login-card">
+      <div class="login-left">
+        <div class="login-brand">
+          ⚡ CONTROLE DE CHAVES
+        </div>
         
-        <div class="banner-gif-container">
-          <img src="https://lh3.googleusercontent.com/d/1qJQXDfDcs_rF16nQZX1NSOKLEtQ3aUL7" alt="Acesso Seguro" class="banner-gif">
+        <!-- GIF MANTIDO NO LADO ESQUERDO -->
+        <div class="login-mascote-wrapper">
+          <img src="https://lh3.googleusercontent.com/d/1qJQXDfDcs_rF16nQZX1NSOKLEtQ3aUL7" alt="Acesso Seguro" class="login-mascote">
         </div>
 
-        <div class="banner-footer">
+        <div class="login-footer-text">
           <h3>Acesso Seguro</h3>
           <p>Desenvolvido por F.F.</p>
         </div>
       </div>
 
-      <div class="login-box">
-        <div class="login-box-header">
-          <h2>Bem-vindo!</h2>
-          <p>Digite seus dados para acessar o sistema.</p>
+      <div class="login-right">
+        <h2>Bem-vindo!</h2>
+        <p class="subtitle">Digite seus dados para acessar o sistema.</p>
+
+        <div class="input-group">
+          <label>Usuário</label>
+          <input type="text" id="userInput" placeholder="Digite seu usuário" value="admin">
         </div>
 
-        <div class="login-form">
-          <div class="field">
-            <label>Usuário</label>
-            <input type="text" id="userInput" placeholder="Digite seu usuário" value="admin">
-          </div>
-
-          <div class="field">
-            <label>Senha</label>
-            <input type="password" id="passInput" placeholder="Digite sua senha" onkeypress="if(event.key==='Enter')validarSenha()">
-          </div>
-
-          <button class="btn-login" onclick="validarSenha()">
-            <i data-lucide="log-in" size="18"></i> Entrar no Sistema ➔
-          </button>
+        <div class="input-group">
+          <label>Senha</label>
+          <input type="password" id="passInput" placeholder="Digite sua senha" onkeypress="if(event.key==='Enter')validarSenha()">
         </div>
+
+        <button class="btn-login" onclick="validarSenha()">
+          Entrar no Sistema ➔
+        </button>
       </div>
     </div>
 
-    <!-- Mascote no canto direito -->
+    <!-- MASCOTE DA CHAVE POSICIONADO NO LADO DIREITO -->
     <img src="https://lh3.googleusercontent.com/d/1W22GkelvWyfQjvKoJxYphvopSk-tDRc6" alt="Mascote JR Telecom" class="outer-mascote">
 
   </div>
@@ -438,24 +348,21 @@ th{background:#eee}
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <script>
+// SENHA DE ACESSO ORIGINAL
 const SENHA_CORRETA = "jr123";
 
 function validarSenha(){
-  const passEl = document.getElementById('passInput');
-  const passVal = (passEl ? passEl.value : '').trim().toLowerCase();
-
-  if(passVal === SENHA_CORRETA.toLowerCase()){
+  if(passInput.value === SENHA_CORRETA){
     localStorage.setItem('jr_auth', 'true');
     liberarAcesso();
   } else {
     alert("Senha incorreta!");
-    if(passEl) passEl.value = '';
+    passInput.value = '';
   }
 }
 
 function liberarAcesso(){
-  const screen = document.getElementById('loginScreen');
-  if(screen) screen.style.display = 'none';
+  loginScreen.style.display = 'none';
   renderTudo();
 }
 
@@ -484,6 +391,16 @@ let db = { chaves: [], pessoas: [], movimentos: [] };
 let chaveEditandoId = null;
 let pessoaEditandoId = null;
 
+const svgKey = `<svg class="key-icon-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="340" cy="172" r="142" fill="#FFA726"/>
+  <circle cx="340" cy="172" r="105" fill="#FFB74D"/>
+  <circle cx="372" cy="140" r="32" fill="#FFFFFF"/>
+  <path d="M228 250 L38 440 L38 500 L88 500 L128 460 L128 430 L168 430 L168 390 L208 390 L248 350 L248 310 L278 280 Z" fill="#FFA726"/>
+  <path d="M200 280 L38 440 L38 500 L88 500 L118 470 L118 430 L158 430 L158 390 L208 390 Z" fill="#FB8C00"/>
+  <path d="M228 250 L188 290 L78 400 L38 440 L38 500 L63 500 L93 470 L128 470 L128 430 L168 430 L168 390 L208 390 L233 365 Z" fill="#F57C00"/>
+</svg>`;
+
+// Sincronização em Tempo Real com o Firebase
 dbFirestore.collection('controle').doc('dados_v2').onSnapshot((doc) => {
   if (doc.exists) {
     db = doc.data() || { chaves: [], pessoas: [], movimentos: [] };
@@ -787,8 +704,6 @@ function renderDashboard(){
   } else {
     outrasChavesContainer.style.display = 'none';
   }
-
-  lucide.createIcons();
 }
 
 function buscarChaveDashboard(){
@@ -858,7 +773,7 @@ function importar(e){
 function limparTudo(){
  if(confirm('ATENÇÃO: todos os dados serão apagados do banco de dados na nuvem. Confirma?')){db={chaves:[],pessoas:[],movimentos:[]};salvar()}
 }
-function renderTudo(){renderDashboard();renderChaves();renderPessoas();preencherSelects();renderDevolucoes();renderHistorico();lucide.createIcons();}
+function renderTudo(){renderDashboard();renderChaves();renderPessoas();preencherSelects();renderDevolucoes();renderHistorico()}
 </script>
 </body>
 </html>

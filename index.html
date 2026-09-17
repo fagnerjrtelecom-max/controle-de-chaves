@@ -25,7 +25,7 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(--text-main);position:relative;min-height:100vh;overflow-x:hidden}
 
-/* LOGIN SPLIT (PADRÃO ESTOQUE) */
+/* LOGIN SPLIT (IGUAL AO ESTOQUE) */
 #loginScreen {
   position: fixed;
   top: 0; left: 0; width: 100vw; height: 100vh;
@@ -35,6 +35,16 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
   justify-content: center;
   z-index: 2000;
   padding: 20px;
+}
+
+.login-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  position: relative;
+  max-width: 1200px;
+  width: 100%;
+  justify-content: center;
 }
 
 .login-container {
@@ -49,7 +59,7 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
   border: 1px solid var(--border);
 }
 
-/* Lado Esquerdo (Azul Escuro) */
+/* Lado Esquerdo (Azul Escuro com o Logo) */
 .login-banner {
   flex: 1.1;
   background: linear-gradient(135deg, #020720, var(--azul-escuro));
@@ -74,36 +84,27 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
   z-index: 2; 
 }
 
-/* Container do GIF e do Mascote juntos na área azul */
-.banner-media-container {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 0;
-  z-index: 2;
-  gap: 15px;
+.banner-gif-container { 
+  flex: 1; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  padding: 10px 0; 
+  z-index: 2; 
 }
 
 .banner-gif { 
-  max-width: 55%; 
-  max-height: 220px; 
+  max-width: 85%; 
+  max-height: 250px; 
   object-fit: contain; 
   filter: drop-shadow(0 10px 20px rgba(0, 185, 255, 0.25)); 
-}
-
-.banner-mascote {
-  max-width: 40%;
-  max-height: 210px;
-  object-fit: contain;
-  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4));
 }
 
 .banner-footer { z-index: 2; }
 .banner-footer h3 { margin: 0 0 6px 0; font-size: 22px; font-weight: 800; color: #ffffff; }
 .banner-footer p { margin: 0; font-size: 13px; color: rgba(255, 255, 255, 0.7); line-height: 1.4; }
 
-/* Lado Direito (Caixa de Login Branca) */
+/* Lado Direito (Caixa de Login Branca com Cores do Estoque) */
 .login-box { flex: 1; padding: 48px; display: flex; flex-direction: column; justify-content: center; background: #ffffff; }
 .login-box-header { margin-bottom: 28px; text-align: left; }
 .login-box-header h2 { margin: 0 0 6px 0; font-size: 26px; font-weight: 800; color: var(--azul-escuro); }
@@ -111,7 +112,15 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
 
 .login-form { display: flex; flex-direction: column; gap: 18px; }
 .login-form .field { display: flex; flex-direction: column; gap: 6px; }
-.login-form label { font-size: 12px; font-weight: 800; color: var(--azul-escuro); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Rótulos USUÁRIO e SENHA em Azul Vibrante Igual ao Estoque */
+.login-form label { 
+  font-size: 12px; 
+  font-weight: 800; 
+  color: var(--azul-escuro); 
+  text-transform: uppercase; 
+  letter-spacing: 0.5px; 
+}
 
 .login-form input {
   padding: 12px 14px;
@@ -119,13 +128,12 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
   border: 1px solid var(--border);
   font-size: 14px;
   transition: all 0.2s;
-  background: #f8fafc;
+  background: #fdfefe;
 }
 
 .login-form input:focus {
   outline: none;
   border-color: var(--azul-claro);
-  background: #fff;
   box-shadow: 0 0 0 3px rgba(0, 185, 255, 0.15);
 }
 
@@ -135,12 +143,23 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
 }
 .btn-login:hover { background: var(--azul-claro); box-shadow: 0 6px 18px rgba(0, 185, 255, 0.3); }
 
+/* MASCOTE FORA DO CARD (LADO DIREITO DA TELA) */
+.outer-mascote {
+  max-height: 380px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
+}
+
+@media (max-width: 1100px) {
+  .outer-mascote { display: none; } /* Oculta em telas menores para não quebrar o layout */
+}
+
 @media (max-width: 768px) {
   .login-container { flex-direction: column; }
-  .login-banner { padding: 24px; min-height: 220px; }
+  .login-banner { padding: 24px; min-height: 200px; }
   .login-box { padding: 28px; }
-  .banner-gif { max-height: 120px; }
-  .banner-mascote { max-height: 120px; }
+  .banner-gif { max-height: 140px; }
 }
 
 /* Header Laranja */
@@ -237,46 +256,51 @@ th{background:#eee}
 </head>
 <body>
 
-<!-- TELA DE LOGIN FORMATO ESTOQUE COM GIF E MASCOTE NA PARTE AZUL -->
+<!-- TELA DE LOGIN FORMATO ESTOQUE COM MASCOTE NO CANTO DIREITO -->
 <div id="loginScreen">
-  <div class="login-container">
-    <div class="login-banner">
-      <div class="banner-brand"><i data-lucide="key-round" size="20"></i> CONTROLE DE CHAVES DA NOVA SEDE</div>
-      
-      <!-- GIF à esquerda e Mascote à direita, ambos dentro da área azul -->
-      <div class="banner-media-container">
-        <img src="https://lh3.googleusercontent.com/d/1qJQXDfDcs_rF16nQZX1NSOKLEtQ3aUL7" alt="Acesso Seguro" class="banner-gif">
-        <img src="https://lh3.googleusercontent.com/d/1W22GkelvWyfQjvKoJxYphvopSk-tDRc6" alt="Mascote JR Telecom" class="banner-mascote">
+  <div class="login-wrapper">
+    
+    <div class="login-container">
+      <div class="login-banner">
+        <div class="banner-brand"><i data-lucide="key-round" size="20"></i> CONTROLE DE CHAVES DA NOVA SEDE</div>
+        
+        <div class="banner-gif-container">
+          <img src="https://lh3.googleusercontent.com/d/1qJQXDfDcs_rF16nQZX1NSOKLEtQ3aUL7" alt="Acesso Seguro" class="banner-gif">
+        </div>
+
+        <div class="banner-footer">
+          <h3>Acesso Seguro</h3>
+          <p>Desenvolvido por F.F.</p>
+        </div>
       </div>
 
-      <div class="banner-footer">
-        <h3>Acesso Seguro</h3>
-        <p>Desenvolvido por F.F.</p>
+      <div class="login-box">
+        <div class="login-box-header">
+          <h2>Bem-vindo!</h2>
+          <p>Digite seus dados para acessar o sistema.</p>
+        </div>
+
+        <div class="login-form">
+          <div class="field">
+            <label>Usuário</label>
+            <input type="text" id="userInput" placeholder="Digite seu usuário" value="admin">
+          </div>
+
+          <div class="field">
+            <label>Senha</label>
+            <input type="password" id="passInput" placeholder="Digite sua senha" onkeypress="if(event.key==='Enter')validarSenha()">
+          </div>
+
+          <button class="btn-login" onclick="validarSenha()">
+            <i data-lucide="log-in" size="18"></i> Entrar no Sistema ➔
+          </button>
+        </div>
       </div>
     </div>
 
-    <div class="login-box">
-      <div class="login-box-header">
-        <h2>Bem-vindo!</h2>
-        <p>Digite seus dados para acessar o sistema.</p>
-      </div>
+    <!-- Mascote fora do card no lado direito da tela -->
+    <img src="https://lh3.googleusercontent.com/d/1W22GkelvWyfQjvKoJxYphvopSk-tDRc6" alt="Mascote JR Telecom" class="outer-mascote">
 
-      <div class="login-form">
-        <div class="field">
-          <label>Usuário</label>
-          <input type="text" id="userInput" placeholder="Digite seu usuário" value="admin">
-        </div>
-
-        <div class="field">
-          <label>Senha</label>
-          <input type="password" id="passInput" placeholder="Digite sua senha" onkeypress="if(event.key==='Enter')validarSenha()">
-        </div>
-
-        <button class="btn-login" onclick="validarSenha()">
-          <i data-lucide="log-in" size="18"></i> Entrar no Sistema ➔
-        </button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -824,7 +848,7 @@ function detalharChave(cid){
    <p><b>Observação:</b> ${esc(c.obs)||'-'}</p>
    <hr>
    <h4>Histórico de retiradas/devoluções</h4>`+
- (movs.length?`<table><tr><th>Retirada</th><th>Colaborador</th><th>Qtd</th><th>Devolução</th></tr>${movs.map(m=>{let p=pessoa(m.pessoaId);return `<tr><td>${dataBR(m.data)} ${esc(m.hora)}</td><td>${esc(p?.nome||'Excluído')}</td><td>${m.qtd||1} cóp.</td><td>${m.devolucao?dataBR(m.devolucao.data)+' '+esc(m.devolucao.hora):'<b>Em uso</b>'}</td></tr>`}).join('')}</table>`:'<p>Sem histórico.</p>');
+ (movs.length?`<table><tr><th>Retirada</th><th>Colaborador</th><th>Qtd</th><th>Devolução</th></tr>${movs.map(m=>{let p=pessoa(m.pessoaId);return `<tr><td>${dataBR(m.data)} ${esc(m.hora)}</td><td>${esc(p?.nome||'Excluído')}</td><td>${m.qtd\vert{}\vert{}1} cóp.</td><td>${m.devolucao?dataBR(m.devolucao.data)+' '+esc(m.devolucao.hora):'<b>Em uso</b>'}</td></tr>`}).join('')}</table>`:'<p>Sem histórico.</p>');
  modal.classList.add('show');
 }
 

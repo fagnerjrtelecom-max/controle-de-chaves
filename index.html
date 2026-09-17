@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Controle de chaves nova sede JR Telecom</title>
 
+<!-- Fonte Inter e Ícones Lucide -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -48,6 +49,7 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
   border: 1px solid var(--border);
 }
 
+/* Lado Esquerdo (Azul Escuro) */
 .login-banner {
   flex: 1.1;
   background: linear-gradient(135deg, #020720, var(--azul-escuro));
@@ -60,23 +62,54 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
   color: white;
 }
 
-.banner-brand { font-size: 14px; font-weight: 800; letter-spacing: 1px; color: var(--azul-claro); display: flex; align-items: center; gap: 8px; text-transform: uppercase; z-index: 2; }
-.banner-gif-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px 0; z-index: 2; }
-.banner-gif { max-width: 85%; max-height: 250px; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0, 185, 255, 0.25)); }
+.banner-brand { 
+  font-size: 14px; 
+  font-weight: 800; 
+  letter-spacing: 1px; 
+  color: var(--azul-claro); 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  text-transform: uppercase; 
+  z-index: 2; 
+}
+
+/* Container do GIF e do Mascote juntos na área azul */
+.banner-media-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  z-index: 2;
+  gap: 15px;
+}
+
+.banner-gif { 
+  max-width: 55%; 
+  max-height: 220px; 
+  object-fit: contain; 
+  filter: drop-shadow(0 10px 20px rgba(0, 185, 255, 0.25)); 
+}
+
+.banner-mascote {
+  max-width: 40%;
+  max-height: 210px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4));
+}
+
 .banner-footer { z-index: 2; }
 .banner-footer h3 { margin: 0 0 6px 0; font-size: 22px; font-weight: 800; color: #ffffff; }
 .banner-footer p { margin: 0; font-size: 13px; color: rgba(255, 255, 255, 0.7); line-height: 1.4; }
 
-.login-box { flex: 1; padding: 48px; display: flex; flex-direction: column; justify-content: center; background: #ffffff; position: relative; }
-.login-box-header { margin-bottom: 20px; text-align: left; }
+/* Lado Direito (Caixa de Login Branca) */
+.login-box { flex: 1; padding: 48px; display: flex; flex-direction: column; justify-content: center; background: #ffffff; }
+.login-box-header { margin-bottom: 28px; text-align: left; }
 .login-box-header h2 { margin: 0 0 6px 0; font-size: 26px; font-weight: 800; color: var(--azul-escuro); }
 .login-box-header p { margin: 0; font-size: 14px; color: var(--text-muted); }
 
-/* Mascote Alocado no Lado Direito */
-.right-mascote-container { display: flex; justify-content: center; margin-bottom: 15px; }
-.right-mascote { max-height: 130px; width: auto; object-fit: contain; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.15)); }
-
-.login-form { display: flex; flex-direction: column; gap: 16px; }
+.login-form { display: flex; flex-direction: column; gap: 18px; }
 .login-form .field { display: flex; flex-direction: column; gap: 6px; }
 .login-form label { font-size: 12px; font-weight: 800; color: var(--azul-escuro); text-transform: uppercase; letter-spacing: 0.5px; }
 
@@ -104,10 +137,10 @@ body{margin:0;font-family:'Inter',sans-serif;background:var(--bg-app);color:var(
 
 @media (max-width: 768px) {
   .login-container { flex-direction: column; }
-  .login-banner { padding: 24px; min-height: 200px; }
+  .login-banner { padding: 24px; min-height: 220px; }
   .login-box { padding: 28px; }
-  .banner-gif { max-height: 140px; }
-  .right-mascote { max-height: 90px; }
+  .banner-gif { max-height: 120px; }
+  .banner-mascote { max-height: 120px; }
 }
 
 /* Header Laranja */
@@ -204,13 +237,18 @@ th{background:#eee}
 </head>
 <body>
 
+<!-- TELA DE LOGIN FORMATO ESTOQUE COM GIF E MASCOTE NA PARTE AZUL -->
 <div id="loginScreen">
   <div class="login-container">
     <div class="login-banner">
       <div class="banner-brand"><i data-lucide="key-round" size="20"></i> CONTROLE DE CHAVES DA NOVA SEDE</div>
-      <div class="banner-gif-container">
+      
+      <!-- GIF à esquerda e Mascote à direita, ambos dentro da área azul -->
+      <div class="banner-media-container">
         <img src="https://lh3.googleusercontent.com/d/1qJQXDfDcs_rF16nQZX1NSOKLEtQ3aUL7" alt="Acesso Seguro" class="banner-gif">
+        <img src="https://lh3.googleusercontent.com/d/1W22GkelvWyfQjvKoJxYphvopSk-tDRc6" alt="Mascote JR Telecom" class="banner-mascote">
       </div>
+
       <div class="banner-footer">
         <h3>Acesso Seguro</h3>
         <p>Desenvolvido por F.F.</p>
@@ -218,10 +256,6 @@ th{background:#eee}
     </div>
 
     <div class="login-box">
-      <div class="right-mascote-container">
-        <img src="https://lh3.googleusercontent.com/d/1W22GkelvWyfQjvKoJxYphvopSk-tDRc6" alt="Mascote JR Telecom" class="right-mascote">
-      </div>
-
       <div class="login-box-header">
         <h2>Bem-vindo!</h2>
         <p>Digite seus dados para acessar o sistema.</p>
@@ -448,7 +482,7 @@ function salvar(){
   dbFirestore.collection('controle').doc('dados_v2').set(db);
 }
 
-function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&','<':'<','>':'>','"':'"',"'":'\''}[m]))}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function hoje(){return new Date().toISOString().slice(0,10)}
 function hora(){return new Date().toTimeString().slice(0,5)}
 function id(prefix){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6)}
@@ -790,7 +824,7 @@ function detalharChave(cid){
    <p><b>Observação:</b> ${esc(c.obs)||'-'}</p>
    <hr>
    <h4>Histórico de retiradas/devoluções</h4>`+
- (movs.length?`<table><tr><th>Retirada</th><th>Colaborador</th><th>Qtd</th><th>Devolução</th></tr>${movs.map(m=>{let p=pessoa(m.pessoaId);return `<tr><td>${dataBR(m.data)} ${esc(m.hora)}</td><td>${esc(p?.nome||'Excluído')}</td><td>${m.qtd\vert{}\vert{}1} cóp.</td><td>${m.devolucao?dataBR(m.devolucao.data)+' '+esc(m.devolucao.hora):'<b>Em uso</b>'}</td></tr>`}).join('')}</table>`:'<p>Sem histórico.</p>');
+ (movs.length?`<table><tr><th>Retirada</th><th>Colaborador</th><th>Qtd</th><th>Devolução</th></tr>${movs.map(m=>{let p=pessoa(m.pessoaId);return `<tr><td>${dataBR(m.data)} ${esc(m.hora)}</td><td>${esc(p?.nome||'Excluído')}</td><td>${m.qtd||1} cóp.</td><td>${m.devolucao?dataBR(m.devolucao.data)+' '+esc(m.devolucao.hora):'<b>Em uso</b>'}</td></tr>`}).join('')}</table>`:'<p>Sem histórico.</p>');
  modal.classList.add('show');
 }
 

@@ -379,11 +379,20 @@ const svgKey = `<svg class="key-icon-svg" viewBox="0 0 512 512" xmlns="http://ww
 </svg>`;
 
 // Sincronização em Tempo Real com o Firebase
+let _avisoDocInexistenteMostrado = false;
 dbFirestore.collection('controle').doc('dados_v2').onSnapshot((doc) => {
   if (doc.exists) {
     db = doc.data() || { chaves: [], pessoas: [], movimentos: [] };
   } else {
-    salvar();
+    // IMPORTANTE: não gravamos mais dados vazios automaticamente aqui.
+    // Antes, se o documento não existisse (por ex. apagado sem querer),
+    // o sistema recriava ele vazio sozinho, apagando qualquer chance de
+    // recuperação. Agora apenas avisamos, sem sobrescrever nada.
+    console.warn('ATENÇÃO: documento controle/dados_v2 não encontrado no Firestore. Nenhuma gravação automática foi feita.');
+    if (!_avisoDocInexistenteMostrado && localStorage.getItem('jr_auth') === 'true') {
+      _avisoDocInexistenteMostrado = true;
+      alert('ATENÇÃO: não foi encontrado nenhum dado salvo no banco de dados (documento controle/dados_v2 inexistente).\n\nO sistema NÃO vai criar/sobrescrever nada sozinho, para não arriscar apagar informação por engano.\n\nAvise o responsável técnico antes de continuar usando o sistema.');
+    }
   }
   if(localStorage.getItem('jr_auth') === 'true') renderTudo();
 }, (error) => {

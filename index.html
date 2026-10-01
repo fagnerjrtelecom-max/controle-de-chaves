@@ -166,16 +166,16 @@ th{background:#eee}
 
       <div class="login-form">
         <div class="field">
-          <label>Usuário</label>
-          <input type="text" id="userInput" placeholder="Digite seu usuário" value="admin">
+          <label>E-mail</label>
+          <input type="email" id="userInput" placeholder="Digite seu e-mail" autocomplete="username">
         </div>
 
         <div class="field">
           <label>Senha</label>
-          <input type="password" id="passInput" placeholder="Digite sua senha" onkeypress="if(event.key==='Enter')validarSenha()">
+          <input type="password" id="passInput" placeholder="Digite sua senha" autocomplete="current-password" onkeypress="if(event.key==='Enter')validarSenha()">
         </div>
 
-        <button class="btn-login" onclick="validarSenha()">
+        <button class="btn-login" onclick="validarSenha()" id="btnLogin">
           Entrar no Sistema ➔
         </button>
       </div>
@@ -323,20 +323,31 @@ th{background:#eee}
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <script>
-// SENHA DE ACESSO
-const SENHA_CORRETA = "jr123";
+// LOGIN REAL COM FIREBASE AUTHENTICATION (substitui a senha fixa antiga)
+let usuarioLogado = false;
 
 function validarSenha(){
-  if(passInput.value === SENHA_CORRETA){
-    localStorage.setItem('jr_auth', 'true');
-    liberarAcesso();
-  } else {
-    alert("Senha incorreta!");
-    passInput.value = '';
+  const email = userInput.value.trim();
+  const senha = passInput.value;
+  if(!email || !senha){
+    alert('Preencha e-mail e senha.');
+    return;
   }
+  btnLogin.disabled = true;
+  btnLogin.textContent = 'Entrando...';
+  firebase.auth().signInWithEmailAndPassword(email, senha)
+    .catch(() => {
+      alert('E-mail ou senha incorretos.');
+      passInput.value = '';
+    })
+    .finally(() => {
+      btnLogin.disabled = false;
+      btnLogin.textContent = 'Entrar no Sistema ➔';
+    });
 }
 
 function liberarAcesso(){
@@ -345,12 +356,7 @@ function liberarAcesso(){
 }
 
 function logout(){
-  localStorage.removeItem('jr_auth');
-  location.reload();
-}
-
-if(localStorage.getItem('jr_auth') === 'true'){
-  window.addEventListener('DOMContentLoaded', liberarAcesso);
+  firebase.auth().signOut();
 }
 
 const firebaseConfig = {
@@ -364,6 +370,15 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const dbFirestore = firebase.firestore();
+
+firebase.auth().onAuthStateChanged((user) => {
+  usuarioLogado = !!user;
+  if (user) {
+    liberarAcesso();
+  } else {
+    loginScreen.style.display = '';
+  }
+});
 
 let db = { chaves: [], pessoas: [], movimentos: [] };
 let chaveEditandoId = null;
@@ -389,12 +404,12 @@ dbFirestore.collection('controle').doc('dados_v2').onSnapshot((doc) => {
     // o sistema recriava ele vazio sozinho, apagando qualquer chance de
     // recuperação. Agora apenas avisamos, sem sobrescrever nada.
     console.warn('ATENÇÃO: documento controle/dados_v2 não encontrado no Firestore. Nenhuma gravação automática foi feita.');
-    if (!_avisoDocInexistenteMostrado && localStorage.getItem('jr_auth') === 'true') {
+    if (!_avisoDocInexistenteMostrado && usuarioLogado) {
       _avisoDocInexistenteMostrado = true;
       alert('ATENÇÃO: não foi encontrado nenhum dado salvo no banco de dados (documento controle/dados_v2 inexistente).\n\nO sistema NÃO vai criar/sobrescrever nada sozinho, para não arriscar apagar informação por engano.\n\nAvise o responsável técnico antes de continuar usando o sistema.');
     }
   }
-  if(localStorage.getItem('jr_auth') === 'true') renderTudo();
+  if(usuarioLogado) renderTudo();
 }, (error) => {
   console.error("Erro no Firebase:", error);
 });

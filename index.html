@@ -402,14 +402,33 @@ function pararSincronizacao(){
   }
 }
 
+// Logout automático por inatividade (15 minutos sem nenhuma interação)
+const TEMPO_INATIVIDADE_MS = 15 * 60 * 1000;
+let _timerInatividade = null;
+
+function resetarTimerInatividade(){
+  if (!usuarioLogado) return;
+  clearTimeout(_timerInatividade);
+  _timerInatividade = setTimeout(() => {
+    alert('Sessão encerrada por inatividade (15 minutos sem uso). Faça login novamente.');
+    logout();
+  }, TEMPO_INATIVIDADE_MS);
+}
+
+['mousemove','mousedown','keydown','touchstart','scroll'].forEach(evt => {
+  document.addEventListener(evt, resetarTimerInatividade, { passive: true });
+});
+
 firebase.auth().onAuthStateChanged((user) => {
   usuarioLogado = !!user;
   if (user) {
     liberarAcesso();
     iniciarSincronizacao(); // só começa a ler o banco DEPOIS do login confirmado
+    resetarTimerInatividade();
   } else {
     loginScreen.style.display = '';
     pararSincronizacao();
+    clearTimeout(_timerInatividade);
   }
 });
 

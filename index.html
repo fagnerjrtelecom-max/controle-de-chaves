@@ -371,16 +371,50 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const dbFirestore = firebase.firestore();
 
+let _unsubscribeSnapshot = null;
+
+function iniciarSincronizacao(){
+  if (_unsubscribeSnapshot) return; // já está ouvindo, evita duplicar
+  _unsubscribeSnapshot = dbFirestore.collection('controle').doc('dados_v2').onSnapshot((doc) => {
+    if (doc.exists) {
+      db = doc.data() || { chaves: [], pessoas: [], movimentos: [] };
+    } else {
+      // IMPORTANTE: não gravamos mais dados vazios automaticamente aqui.
+      // Antes, se o documento não existisse (por ex. apagado sem querer),
+      // o sistema recriava ele vazio sozinho, apagando qualquer chance de
+      // recuperação. Agora apenas avisamos, sem sobrescrever nada.
+      console.warn('ATENÇÃO: documento controle/dados_v2 não encontrado no Firestore. Nenhuma gravação automática foi feita.');
+      if (!_avisoDocInexistenteMostrado && usuarioLogado) {
+        _avisoDocInexistenteMostrado = true;
+        alert('ATENÇÃO: não foi encontrado nenhum dado salvo no banco de dados (documento controle/dados_v2 inexistente).\n\nO sistema NÃO vai criar/sobrescrever nada sozinho, para não arriscar apagar informação por engano.\n\nAvise o responsável técnico antes de continuar usando o sistema.');
+      }
+    }
+    if(usuarioLogado) renderTudo();
+  }, (error) => {
+    console.error("Erro no Firebase:", error);
+  });
+}
+
+function pararSincronizacao(){
+  if (_unsubscribeSnapshot) {
+    _unsubscribeSnapshot();
+    _unsubscribeSnapshot = null;
+  }
+}
+
 firebase.auth().onAuthStateChanged((user) => {
   usuarioLogado = !!user;
   if (user) {
     liberarAcesso();
+    iniciarSincronizacao(); // só começa a ler o banco DEPOIS do login confirmado
   } else {
     loginScreen.style.display = '';
+    pararSincronizacao();
   }
 });
 
 let db = { chaves: [], pessoas: [], movimentos: [] };
+let _avisoDocInexistenteMostrado = false;
 let chaveEditandoId = null;
 let pessoaEditandoId = null;
 
@@ -392,27 +426,6 @@ const svgKey = `<svg class="key-icon-svg" viewBox="0 0 512 512" xmlns="http://ww
   <path d="M200 280 L38 440 L38 500 L88 500 L118 470 L118 430 L158 430 L158 390 L208 390 Z" fill="#FB8C00"/>
   <path d="M228 250 L188 290 L78 400 L38 440 L38 500 L63 500 L93 470 L128 470 L128 430 L168 430 L168 390 L208 390 L233 365 Z" fill="#F57C00"/>
 </svg>`;
-
-// Sincronização em Tempo Real com o Firebase
-let _avisoDocInexistenteMostrado = false;
-dbFirestore.collection('controle').doc('dados_v2').onSnapshot((doc) => {
-  if (doc.exists) {
-    db = doc.data() || { chaves: [], pessoas: [], movimentos: [] };
-  } else {
-    // IMPORTANTE: não gravamos mais dados vazios automaticamente aqui.
-    // Antes, se o documento não existisse (por ex. apagado sem querer),
-    // o sistema recriava ele vazio sozinho, apagando qualquer chance de
-    // recuperação. Agora apenas avisamos, sem sobrescrever nada.
-    console.warn('ATENÇÃO: documento controle/dados_v2 não encontrado no Firestore. Nenhuma gravação automática foi feita.');
-    if (!_avisoDocInexistenteMostrado && usuarioLogado) {
-      _avisoDocInexistenteMostrado = true;
-      alert('ATENÇÃO: não foi encontrado nenhum dado salvo no banco de dados (documento controle/dados_v2 inexistente).\n\nO sistema NÃO vai criar/sobrescrever nada sozinho, para não arriscar apagar informação por engano.\n\nAvise o responsável técnico antes de continuar usando o sistema.');
-    }
-  }
-  if(usuarioLogado) renderTudo();
-}, (error) => {
-  console.error("Erro no Firebase:", error);
-});
 
 function salvar(){
   dbFirestore.collection('controle').doc('dados_v2').set(db);
